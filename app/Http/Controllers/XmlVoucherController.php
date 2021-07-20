@@ -106,8 +106,12 @@ class XmlVoucherController extends Controller
         Storage::put($rootfile . DIRECTORY_SEPARATOR . ($in_taxs ? $retention->state : $sale->state) . DIRECTORY_SEPARATOR . $file, $str_xml_voucher);
 
         //Signner Start --------------------------
-        $public_path = 'D:\apps\project\apiaud\public';
-        $cert = storage_path('app' . DIRECTORY_SEPARATOR . 'signs' . DIRECTORY_SEPARATOR . $company->cert_dir);
+        //Local --------------------------
+        // $public_path = 'D:\apps\project\apiaud\public';
+        //Server --------------------------
+        $public_path = 'public';
+
+        $cert = Storage::path('signs' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
         // $rootfile = storage_path('app' . DIRECTORY_SEPARATOR . $rootfile);
         $rootfile = Storage::path($rootfile);
