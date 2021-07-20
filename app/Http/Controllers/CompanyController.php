@@ -93,8 +93,7 @@ class CompanyController extends Controller
             $request->file('cert')->storeAs('cert', $certname);
 
             $results = array();
-            // if (openssl_pkcs12_read(file_get_contents($dir_file), $results, $request->pass_cert)) {
-            if (openssl_pkcs12_read(Storage::path('cert' . DIRECTORY_SEPARATOR . $certname), $results, $request->pass_cert)) {
+            if (openssl_pkcs12_read(file_get_contents(Storage::path('cert' . DIRECTORY_SEPARATOR . $certname)), $results, $request->pass_cert)) {
                 $cert = $results['cert'];
                 openssl_x509_export($cert, $certout);
                 $data = openssl_x509_parse($certout);

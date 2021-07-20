@@ -111,7 +111,7 @@ class XmlVoucherController extends Controller
         //Server --------------------------
         $public_path = 'public';
 
-        $cert = Storage::path('signs' . DIRECTORY_SEPARATOR . $company->cert_dir);
+        $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
         // $rootfile = storage_path('app' . DIRECTORY_SEPARATOR . $rootfile);
         $rootfile = Storage::path($rootfile);
