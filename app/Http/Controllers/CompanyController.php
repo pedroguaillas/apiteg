@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Company;
-use App\User;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Company;
+use App\User;
+use Illuminate\Validation\Rules\Exists;
 
 class CompanyController extends Controller
 {
@@ -72,7 +74,7 @@ class CompanyController extends Controller
 
         if ($request->cert !== NULL) {
 
-            $certname = $request->ruc . '.p12';
+            $certname = $request->ruc . $request->extention_cert;
 
             // $app = storage_path('app');
             // if (!file_exists($app)) {
@@ -88,12 +90,16 @@ class CompanyController extends Controller
             //     mkdir($dir_file, 0777, true);
             // }
 
-            $dir_file = storage_path('app' . DIRECTORY_SEPARATOR . 'signs') . DIRECTORY_SEPARATOR . $certname;
+            // $dir_file = storage_path('app' . DIRECTORY_SEPARATOR . 'signs') . DIRECTORY_SEPARATOR . $certname;
 
-            $request->file('cert')->move(storage_path('app' . DIRECTORY_SEPARATOR . 'signs'), $certname);
+            $dir_file = storage_path('cert') . DIRECTORY_SEPARATOR . $certname;
+
+            // $request->file('cert')->move(storage_path('app' . DIRECTORY_SEPARATOR . 'signs'), $certname);
+            $request->file('cert')->storeAs('cert', $certname);
 
             $results = array();
-            if (openssl_pkcs12_read(file_get_contents($dir_file), $results, $request->pass_cert)) {
+            // if (openssl_pkcs12_read(file_get_contents($dir_file), $results, $request->pass_cert)) {
+            if (openssl_pkcs12_read(Storage::path($certname), $results, $request->pass_cert)) {
                 $cert = $results['cert'];
                 openssl_x509_export($cert, $certout);
                 $data = openssl_x509_parse($certout);
@@ -118,7 +124,7 @@ class CompanyController extends Controller
         // }
 
         $input['accounting'] = $input['accounting'] ? 1 : 0;
-        $input['micro_business'] = $input['micro_business'] ? 1 : 0;
+        $input['micro_business'] = in_array('micro_business', $input) ? 1 : 0;
 
         if (Company::create($input)) {
             $user = $request->only(['user', 'password', 'email']);

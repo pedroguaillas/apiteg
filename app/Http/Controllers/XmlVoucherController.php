@@ -48,7 +48,7 @@ class XmlVoucherController extends Controller
                     $str_xml_voucher = $this->purchasesettlement($sale, $company, $sale_items);
                 }
                 // Genera xml y firma la retencion
-                $this->xmlRetention($sale->movement_id);
+                $this->xmlRetention($sale, $company);
             }
         }
 
@@ -59,17 +59,13 @@ class XmlVoucherController extends Controller
         // Sended End ---------------------------------------
     }
 
-    public function xmlRetention($id)
+    public function xmlRetention($sale, $company)
     {
-        $auth = Auth::user();
-        $level = $auth->companyusers->first();
-        $company = Company::find($level->level_id);
-
-        $sale = $this->query_sale($id);
-
         $str_xml_voucher = $this->retention($sale, $company);
 
-        $this->sign($company, $sale, $str_xml_voucher, true);
+        if ($str_xml_voucher !== null) {
+            $this->sign($company, $sale, $str_xml_voucher, true);
+        }
     }
 
     private function query_sale($id)
@@ -99,7 +95,10 @@ class XmlVoucherController extends Controller
         $file = substr($str_xml_voucher, strpos($str_xml_voucher, '<claveAcceso>') + 13, 49) . '.xml';
         $date = new \DateTime($sale->date);
 
-        $retention = Retention::where('vaucher_id', $sale->movement_id)->get()->first();
+        $retention = null;
+        if ($in_taxs) {
+            $retention = Retention::where('vaucher_id', $sale->movement_id)->get()->first();
+        }
 
         $rootfile = 'xmls' . DIRECTORY_SEPARATOR . $company->ruc . DIRECTORY_SEPARATOR .
             $date->format('Y') . DIRECTORY_SEPARATOR .
@@ -110,9 +109,11 @@ class XmlVoucherController extends Controller
         $public_path = 'D:\apps\project\apiaud\public';
         $cert = storage_path('app' . DIRECTORY_SEPARATOR . 'signs' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
-        $rootfile = storage_path('app' . DIRECTORY_SEPARATOR . $rootfile);
+        // $rootfile = storage_path('app' . DIRECTORY_SEPARATOR . $rootfile);
+        $rootfile = Storage::path($rootfile);
+
         if (!file_exists($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO')) {
-            mkdir($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO');
+            Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO');
         }
 
         $java_firma = "java -jar $public_path\Firma\dist\Firma.jar $cert $company->pass_cert $rootfile\\CREADO\\$file $rootfile\\FIRMADO $file";
@@ -136,6 +137,15 @@ class XmlVoucherController extends Controller
 
     private function retention($sale, $company)
     {
+        //Replace --- sale items by retencion_items
+        $retention = Retention::where('vaucher_id', $sale->movement_id)->get();
+
+        if (count($retention) > 0) {
+            $retention = $retention->first();
+        } else {
+            return null;
+        }
+
         $buyer_id = strlen($sale->ruc) ? $sale->ruc : $sale->identication_card;
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
@@ -144,9 +154,6 @@ class XmlVoucherController extends Controller
         $string .= $this->infoTributaria($company, $sale, '07');
 
         $string .= '<infoCompRetencion>';
-
-        //Replace --- sale items by retencion_items
-        $retention = Retention::where('vaucher_id', $sale->movement_id)->get()->first();
 
         $date = new \DateTime($retention->date);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
