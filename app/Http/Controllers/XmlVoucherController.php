@@ -106,10 +106,9 @@ class XmlVoucherController extends Controller
         Storage::put($rootfile . DIRECTORY_SEPARATOR . ($in_taxs ? $retention->state : $sale->state) . DIRECTORY_SEPARATOR . $file, $str_xml_voucher);
 
         //Signner Start --------------------------
+        // $public_path = '\';
         //Local --------------------------
-        // $public_path = 'D:\apps\project\apiaud\public';
-        //Server --------------------------
-        $public_path = 'public';
+        // $public_path = 'D:\apps\project\apiaud';
 
         $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
@@ -117,9 +116,9 @@ class XmlVoucherController extends Controller
             Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO');
         }
 
-        $rootfile = Storage::path($rootfile);
+        // $rootfile = Storage::path($rootfile);
 
-        $java_firma = "java -jar $public_path\Firma\dist\Firma.jar $cert $company->pass_cert $rootfile\\CREADO\\$file $rootfile\\FIRMADO $file";
+        $java_firma = "java -jar public\Firma\dist\Firma.jar $cert $company->pass_cert $rootfile\\CREADO\\$file $rootfile\\FIRMADO $file";
 
         $variable = system($java_firma);
 
