@@ -28,9 +28,6 @@ class WSSriController
         try {
             $resultReceipt = json_decode(json_encode($soapClientReceipt->validarComprobante($xml)), True);
             $this->moveXmlFile($voucher, VoucherStates::SENDED);
-            info('**** RECEIPT RESULT *******************************************');
-            info($resultReceipt);
-            info('**** END RECEIPT RESULT ***************************************');
             switch ($resultReceipt['RespuestaRecepcionComprobante']['estado']) {
                 case VoucherStates::RECEIVED:
                     $this->moveXmlFile($voucher, VoucherStates::RECEIVED);

@@ -107,6 +107,7 @@ class XmlVoucherController extends Controller
 
         //Signner Start --------------------------
         // $public_path = '\';
+        $public_path = '/var/www/apiteg';
         //Local --------------------------
         // $public_path = 'D:\apps\project\apiaud';
 
@@ -117,8 +118,10 @@ class XmlVoucherController extends Controller
         }
 
         // $rootfile = Storage::path($rootfile);
+        $rootfile = Storage::path($rootfile);
 
-        $java_firma = "java -jar public\Firma\dist\Firma.jar $cert $company->pass_cert $rootfile\\CREADO\\$file $rootfile\\FIRMADO $file";
+        // $java_firma = "java -jar public\Firma\dist\Firma.jar $cert $company->pass_cert $rootfile\\CREADO\\$file $rootfile\\FIRMADO $file";
+        $java_firma = "java -jar $public_path/public/Firma/dist/Firma.jar $cert $company->pass_cert $rootfile/CREADO/$file $rootfile/FIRMADO $file";
 
         $variable = system($java_firma);
 
