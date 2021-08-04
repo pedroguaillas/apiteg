@@ -129,13 +129,13 @@ class XmlVoucherController extends Controller
             Retention::where('vaucher_id', $sale->movement_id)
                 ->update([
                     'state' => 'FIRMADO',
-                    'xml' => $rootfile . '\\FIRMADO\\' . $file
+                    'xml' => $rootfile . '/FIRMADO/' . $file
                 ]);
         } else {
             Voucher::where('movement_id', $sale->movement_id)
                 ->update([
                     'state' => 'FIRMADO',
-                    'xml' => $rootfile . '\\FIRMADO\\' . $file
+                    'xml' => $rootfile . '/FIRMADO/' . $file
                 ]);
         }
     }

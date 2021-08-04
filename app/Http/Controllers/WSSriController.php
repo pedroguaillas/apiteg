@@ -22,15 +22,21 @@ class WSSriController
                 break;
         }
 
-        $options = array('connection_timeout' => 3);
+        $options = array(
+            'connection_timeout' => 3,
+            'cache_wsdl' => WSDL_CACHE_NONE
+        );
         $soapClientReceipt = new \SoapClient($wsdlReceipt, $options);
-        $xml['xml'] = file_get_contents($voucher->xml);
+        $paramenters = new \stdClass();
+        $paramenters->xml = file_get_contents($voucher->xml);
+
         try {
-            $resultReceipt = json_decode(json_encode($soapClientReceipt->validarComprobante($xml)), True);
+            $resultReceipt = json_decode(json_encode($soapClientReceipt->validarComprobante($paramenters)), True);
             $this->moveXmlFile($voucher, VoucherStates::SENDED);
             switch ($resultReceipt['RespuestaRecepcionComprobante']['estado']) {
                 case VoucherStates::RECEIVED:
                     $this->moveXmlFile($voucher, VoucherStates::RECEIVED);
+                    $this->authorizevoucher($voucher_id);
                     break;
                 case VoucherStates::RETURNED:
                     $message = $resultReceipt['RespuestaRecepcionComprobante']['comprobantes']['comprobante']['mensajes']['mensaje']['tipo'] . ' ' .
@@ -50,14 +56,6 @@ class WSSriController
             info(' LINE: ' . $e->getLine());
             info(' MESSAGE: ' . $e->getMessage());
             info('#### END ERROR IN VALIDARCOMPROBANTE WS ###################');
-        }
-
-        if ($voucher->state === VoucherStates::RECEIVED) {
-            $this->authorizevoucher($voucher_id);
-        } elseif ($voucher->state === VoucherStates::RETURNED) {
-            info('#### RETURNED VOUCHER #######################');
-            info(' *** ' . $voucher->extra_detail . ' *** ');
-            info('#### END RETURNED VOUCHER #######################');
         }
     }
 
