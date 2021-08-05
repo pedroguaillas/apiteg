@@ -55,7 +55,7 @@ class XmlVoucherController extends Controller
         $this->sign($company, $sale, $str_xml_voucher);
 
         // Sended Start ---------------------------------------
-        // (new WSSriController())->sendVoucher($id, $company->enviroment_type);
+        (new WSSriController())->sendVoucher($id, $company->enviroment_type);
         // Sended End ---------------------------------------
     }
 
@@ -118,25 +118,26 @@ class XmlVoucherController extends Controller
         }
 
         // $rootfile = Storage::path($rootfile);
-        $rootfile = Storage::path($rootfile);
+        $newrootfile = Storage::path($rootfile);
 
         // $java_firma = "java -jar public\Firma\dist\Firma.jar $cert $company->pass_cert $rootfile\\CREADO\\$file $rootfile\\FIRMADO $file";
-        $java_firma = "java -jar $public_path/public/Firma/dist/Firma.jar $cert $company->pass_cert $rootfile/CREADO/$file $rootfile/FIRMADO $file";
+        $java_firma = "java -jar $public_path/public/Firma/dist/Firma.jar $cert $company->pass_cert $newrootfile/CREADO/$file $newrootfile/FIRMADO $file";
 
         $variable = system($java_firma);
 
+        $rootfile = $rootfile . '/FIRMADO/' . $file;
+
+        $datas = [
+            'state' => 'FIRMADO',
+            'xml' => $rootfile
+        ];
+
         if ($in_taxs) {
             Retention::where('vaucher_id', $sale->movement_id)
-                ->update([
-                    'state' => 'FIRMADO',
-                    'xml' => $rootfile . '/FIRMADO/' . $file
-                ]);
+                ->update($datas);
         } else {
             Voucher::where('movement_id', $sale->movement_id)
-                ->update([
-                    'state' => 'FIRMADO',
-                    'xml' => $rootfile . '/FIRMADO/' . $file
-                ]);
+                ->update($datas);
         }
     }
 

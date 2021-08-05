@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\StaticClasses\VoucherStates;
 use Illuminate\Support\Facades\Storage;
 use App\Voucher;
+use Svg\Tag\Path;
 
 class WSSriController
 {
@@ -26,24 +27,27 @@ class WSSriController
             'connection_timeout' => 3,
             'cache_wsdl' => WSDL_CACHE_NONE
         );
+
         $soapClientReceipt = new \SoapClient($wsdlReceipt, $options);
         $paramenters = new \stdClass();
-        $paramenters->xml = file_get_contents($voucher->xml);
+        $paramenters->xml = Storage::get($voucher->xml);
 
         try {
-            $resultReceipt = json_decode(json_encode($soapClientReceipt->validarComprobante($paramenters)), True);
+            $result = new \stdClass();
+            $result = $soapClientReceipt->validarComprobante($paramenters);
+
             $this->moveXmlFile($voucher, VoucherStates::SENDED);
-            switch ($resultReceipt['RespuestaRecepcionComprobante']['estado']) {
+
+            switch ($result->RespuestaRecepcionComprobante->estado) {
                 case VoucherStates::RECEIVED:
                     $this->moveXmlFile($voucher, VoucherStates::RECEIVED);
                     $this->authorizevoucher($voucher_id);
                     break;
                 case VoucherStates::RETURNED:
-                    $message = $resultReceipt['RespuestaRecepcionComprobante']['comprobantes']['comprobante']['mensajes']['mensaje']['tipo'] . ' ' .
-                        $resultReceipt['RespuestaRecepcionComprobante']['comprobantes']['comprobante']['mensajes']['mensaje']['identificador'] . ': ' .
-                        $resultReceipt['RespuestaRecepcionComprobante']['comprobantes']['comprobante']['mensajes']['mensaje']['mensaje'];
-                    if (array_key_exists('informacionAdicional', $resultReceipt['RespuestaRecepcionComprobante']['comprobantes']['comprobante']['mensajes']['mensaje'])) {
-                        $message .= '. ' . $resultReceipt['RespuestaRecepcionComprobante']['comprobantes']['comprobante']['mensajes']['mensaje']['informacionAdicional'];
+                    $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes->mensaje;
+                    $message = '';
+                    foreach ($mensajes as $mensaje) {
+                        $message += "\"$mensaje->tipo\":\".$mensaje->mensaje";
                     }
                     $voucher->extra_detail = $message;
                     $this->moveXmlFile($voucher, VoucherStates::RETURNED);
@@ -99,12 +103,18 @@ class WSSriController
             switch ($autorizacion->estado) {
                 case VoucherStates::AUTHORIZED:
                     $toPath = str_replace($voucher->state, VoucherStates::AUTHORIZED, $voucher->xml);
-                    Storage::put($toPath, $autorizacion);
+                    $folder = substr($toPath, 0, strpos($toPath, VoucherStates::AUTHORIZED)) . VoucherStates::AUTHORIZED;
+
+                    if (!file_exists(Storage::path($folder))) {
+                        Storage::makeDirectory($folder);
+                    }
+                    Storage::put($toPath, $this->xmlautorized($autorizacion));
                     $voucher->xml = $toPath;
                     $voucher->state = VoucherStates::AUTHORIZED;
                     $voucher->extra_detail = NULL;
                     $authorizationDate = \DateTime::createFromFormat('Y-m-d\TH:i:sP', $autorizacion->fechaAutorizacion);
                     $voucher->autorized = $authorizationDate->format('Y-m-d H:i:s');
+                    $voucher->authorization = $autorizacion->numeroAutorizacion;
                     $voucher->save();
                     break;
                 case VoucherStates::REJECTED:
@@ -139,12 +149,48 @@ class WSSriController
         }
     }
 
+    private function xmlautorized($comprobante)
+    {
+        $dom = new \DOMDocument('1.0', 'ISO-8859-1');
+
+        $autorizacion = $dom->createElement('autorizacion');
+        $dom->appendChild($autorizacion);
+
+        $estado = $dom->createElement('estado', $comprobante->estado);
+        $autorizacion->appendChild($estado);
+
+        $auth = $dom->createElement('numeroAutorizacion', $comprobante->numeroAutorizacion);
+        $autorizacion->appendChild($auth);
+
+        $fechaAutorizacion = $dom->createElement('fechaAutorizacion', $comprobante->fechaAutorizacion);
+        $autorizacion->appendChild($fechaAutorizacion);
+
+        $ambiente = $dom->createElement('ambiente', $comprobante->ambiente);
+        $autorizacion->appendChild($ambiente);
+
+        $elementocomprobante = $dom->createElement('comprobante');
+        $autorizacion->appendChild($elementocomprobante);
+
+        // Use createCDATASection() function to create a new cdata node 
+        $domElement = $dom->createCDATASection($comprobante->comprobante);
+
+        // Append element in the document 
+        $elementocomprobante->appendChild($domElement);
+
+        return $dom->saveXML();
+    }
+
     private function moveXmlFile($voucher, $newState)
     {
-        $to = str_replace($voucher->state, $newState, $voucher->xml);
-        Storage::move($voucher->xml, $to);
+        $xml = str_replace($voucher->state, $newState, $voucher->xml);
+        $folder = substr($xml, 0, strpos($xml, $newState)) . $newState;
+        if (!file_exists(Storage::path($folder))) {
+            Storage::makeDirectory($folder);
+        }
+
+        Storage::move($voucher->xml, $xml);
         $voucher->state = $newState;
-        $voucher->xml = $to;
+        $voucher->xml = $xml;
         $voucher->save();
     }
 }
