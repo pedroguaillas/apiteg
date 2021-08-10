@@ -15,10 +15,6 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-// Test
-$router->post('testuploadfile', 'FileTestController@setFileAttribute');
-$router->get('testdownloadfile', 'FileTestController@getFile');
-
 // API route group
 $router->group(['prefix' => 'api'], function () use ($router) {
 

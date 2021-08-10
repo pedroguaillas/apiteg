@@ -68,7 +68,7 @@ class VoucherController extends Controller
             ->where([
                 ['type', 1], // Solo Compras
                 ['m.branch_id', $branch_id], // De la sucursal especifico
-                ['state', 'FIRMADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
+                ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 ['voucher_type', 3] // 3-Liquidacion-de-compra
             ])->orderBy('m.created_at', 'desc') // Para traer el ultimo
             ->first();
@@ -78,7 +78,7 @@ class VoucherController extends Controller
             ->where([
                 ['type', 2], // Solo Ventas
                 ['m.branch_id', $branch_id], // De la sucursal especifico
-                ['state', 'FIRMADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
+                ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 ['voucher_type', 1] // 1-Factura
             ])->orderBy('m.created_at', 'desc') // Para traer el ultimo
             ->first();
@@ -88,7 +88,7 @@ class VoucherController extends Controller
             ->where([
                 ['type', 2], // Solo Ventas
                 ['m.branch_id', $branch_id], // De la sucursal especifico
-                ['state', 'FIRMADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
+                ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 ['voucher_type', 4] // 4-Nota-Credito
             ])->orderBy('m.created_at', 'desc') // Para traer el ultimo
             ->first();
@@ -98,7 +98,7 @@ class VoucherController extends Controller
             ->where([
                 ['type', 2], // Solo Ventas
                 ['m.branch_id', $branch_id], // De la sucursal especifico
-                ['state', 'FIRMADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
+                ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 ['voucher_type', 5] // 4-Nota-Debito
             ])->orderBy('m.created_at', 'desc') // Para traer el ultimo
             ->first();

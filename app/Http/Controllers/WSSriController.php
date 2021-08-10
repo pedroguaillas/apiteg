@@ -36,6 +36,10 @@ class WSSriController
             $result = new \stdClass();
             $result = $soapClientReceipt->validarComprobante($paramenters);
 
+            if (!is_soap_fault($result)) {
+                return;
+            }
+
             $this->moveXmlFile($voucher, VoucherStates::SENDED);
 
             switch ($result->RespuestaRecepcionComprobante->estado) {
@@ -47,7 +51,7 @@ class WSSriController
                     $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes->mensaje;
                     $message = '';
                     foreach ($mensajes as $mensaje) {
-                        $message += "\"$mensaje->tipo\":\".$mensaje->mensaje";
+                        $message += "\"$mensaje->tipo\":\"$mensaje->mensaje";
                     }
                     $voucher->extra_detail = $message;
                     $this->moveXmlFile($voucher, VoucherStates::RETURNED);
@@ -98,6 +102,11 @@ class WSSriController
 
         try {
             $response = $soapClientValidation->autorizacionComprobante($user_param);
+
+            if (!is_soap_fault($response)) {
+                return;
+            }
+
             $autorizacion = $response->RespuestaAutorizacionComprobante->autorizaciones->autorizacion;
 
             switch ($autorizacion->estado) {
