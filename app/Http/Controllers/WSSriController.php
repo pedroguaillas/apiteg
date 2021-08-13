@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\StaticClasses\VoucherStates;
 use Illuminate\Support\Facades\Storage;
 use App\Voucher;
-use Svg\Tag\Path;
 
 class WSSriController
 {
@@ -117,6 +116,7 @@ class WSSriController
                     if (!file_exists(Storage::path($folder))) {
                         Storage::makeDirectory($folder);
                     }
+                    
                     Storage::put($toPath, $this->xmlautorized($autorizacion));
                     $voucher->xml = $toPath;
                     $voucher->state = VoucherStates::AUTHORIZED;

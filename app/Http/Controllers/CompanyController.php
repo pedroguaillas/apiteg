@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Company;
 use App\User;
-use Illuminate\Validation\Rules\Exists;
 
 class CompanyController extends Controller
 {

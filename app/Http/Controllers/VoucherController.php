@@ -14,7 +14,6 @@ use App\Retention;
 use App\Tax;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade as PDF;
-use Illuminate\Support\Facades\DB;
 
 class VoucherController extends Controller
 {
@@ -430,6 +429,8 @@ class VoucherController extends Controller
             substr($movement->serie, 4, 3) . substr($movement->serie, 8, 9)
             // . $this->generateRandomNumericCode() . '1';
             . '123456781';
+
+        $company->enviroment_type = (int)substr($movement->xml, -30, 1);
 
         $keyaccess .= (new XmlVoucherController())->generaDigitoModulo11($keyaccess);
 

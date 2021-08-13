@@ -13,6 +13,15 @@ use App\Voucher;
 
 class XmlVoucherController extends Controller
 {
+    public function downloadXml($id_voucher)
+    {
+        $voucher = Voucher::where('movement_id', $id_voucher)->get()->first();
+
+        return response()->json([
+            'xml' => base64_encode(Storage::get($voucher->xml))
+        ]);
+    }
+
     public function xml($id)
     {
         $auth = Auth::user();

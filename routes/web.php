@@ -101,6 +101,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
     // return xml
     $router->get('xml/{id}', 'XmlVoucherController@xml');
+    $router->get('xmldownload/{id}', 'XmlVoucherController@downloadXml');
     $router->get('xml_retention/{id}', 'XmlVoucherController@xmlRetention');
 
     // Azur
