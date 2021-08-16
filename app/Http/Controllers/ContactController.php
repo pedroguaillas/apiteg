@@ -100,12 +100,9 @@ class ContactController extends Controller
             array_push($newContacts, [
                 'state' => 1,
                 'special' => 0,
-                'identication_card' => $contact['identication_card'],
-                'company' => $contact['company'],
-                'address' => 'Riobamba',
-                'phone' => '0989646652',
-                'email' => 'info@auditwhole.com',
-                'accounting' => 0
+                'identication_card' => strlen($contact['identication_card']) ? $contact['identication_card'] : null,
+                'ruc' => strlen($contact['ruc']) ? $contact['ruc'] : null,
+                'company' => $contact['company']
             ]);
         }
         $contact = $company->branches->first()->contacts()->createMany($newContacts);

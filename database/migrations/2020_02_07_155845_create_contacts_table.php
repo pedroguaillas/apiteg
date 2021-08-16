@@ -23,13 +23,13 @@ class CreateContactsTable extends Migration
             $table->string('ruc', 13)->nullable();  //Constraint below
             $table->string('company', 300)->nullable(); //razon social
             $table->string('name', 300)->nullable();    //nombre comercial
-            $table->string('address');
-            $table->string('phone');
-            $table->string('email');
-            $table->boolean('accounting');
+            $table->string('address')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            $table->boolean('accounting')->default(false);
             $table->integer('receive_account_id')->nullable();  //Account
             $table->integer('discount')->nullable();            //Invoice
-            
+
             // Accounting
             $table->integer('pay_account_id')->nullable();      //Account
             $table->integer('rent_retention')->nullable();      //% rent
