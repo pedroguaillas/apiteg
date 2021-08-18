@@ -53,9 +53,9 @@ class WSSriController
 
                     $message = '';
                     foreach ($mensajes as $m) {
-                        $message += '\n' . $m['mensaje'];
+                        $message += '\n' . $m->mensaje;
                         if (in_array('informacionAdicional', $m)) {
-                            $message += '\t' . $m['mensaje']['informacionAdicional'];
+                            $message += '\t' . $m->informacionAdicional;
                         }
                     }
 
