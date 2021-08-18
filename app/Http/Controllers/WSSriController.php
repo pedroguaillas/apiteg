@@ -35,7 +35,7 @@ class WSSriController
             $result = new \stdClass();
             $result = $soapClientReceipt->validarComprobante($paramenters);
 
-            if ($result->RespuestaRecepcionComprobante->Status != 'Success') {
+            if (!property_exists($result, 'RespuestaRecepcionComprobante')) {
                 return;
             }
 
@@ -102,7 +102,7 @@ class WSSriController
         try {
             $response = $soapClientValidation->autorizacionComprobante($user_param);
 
-            if ($response->RespuestaAutorizacionComprobante->Status != 'Success') {
+            if (!property_exists($response, 'RespuestaAutorizacionComprobante')) {
                 return;
             }
 
