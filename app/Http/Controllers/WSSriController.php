@@ -35,6 +35,7 @@ class WSSriController
             $result = new \stdClass();
             $result = $soapClientReceipt->validarComprobante($paramenters);
 
+            // Verificar si la peticion llego al SRI sino abandonar el proceso
             if (!property_exists($result, 'RespuestaRecepcionComprobante')) {
                 return;
             }
@@ -49,9 +50,14 @@ class WSSriController
                 case VoucherStates::RETURNED:
                     $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes->mensaje;
                     $message = '';
+
+                    var_dump($mensajes);
+
                     foreach ($mensajes as $mensaje) {
+                        var_dump($mensaje);
                         $message += "\"$mensaje->tipo\":\"$mensaje->mensaje";
                     }
+
                     $voucher->extra_detail = $message;
                     $this->moveXmlFile($voucher, VoucherStates::RETURNED);
                     break;
@@ -102,6 +108,7 @@ class WSSriController
         try {
             $response = $soapClientValidation->autorizacionComprobante($user_param);
 
+            // Verificar si la peticion llego al SRI sino abandonar el proceso
             if (!property_exists($response, 'RespuestaAutorizacionComprobante')) {
                 return;
             }
