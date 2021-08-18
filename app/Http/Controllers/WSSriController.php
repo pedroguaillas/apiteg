@@ -48,13 +48,15 @@ class WSSriController
                     $this->authorizevoucher($voucher_id);
                     break;
                 case VoucherStates::RETURNED:
-                    $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes->mensaje;
+                    $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes;
                     $mensajes = json_decode(json_encode($mensajes), true);
 
                     $message = '';
                     foreach ($mensajes as $m) {
+                        var_dump('in foreach');
                         $message += '\n' . $m->mensaje;
                         if (in_array('informacionAdicional', $m)) {
+                            var_dump('in informacionAdicional');
                             $message += '\t' . $m->informacionAdicional;
                         }
                     }
