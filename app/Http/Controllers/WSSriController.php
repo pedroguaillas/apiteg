@@ -49,15 +49,15 @@ class WSSriController
                     break;
                 case VoucherStates::RETURNED:
                     $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes->mensaje;
-
                     $mensajes = json_decode(json_encode($mensajes), true);
 
-                    var_dump($mensajes);
-
                     $message = '';
-                    // if (!property_exists($mensaje, 'RespuestaRecepcionComprobante')) {
-                    //     return;
-                    // }
+                    foreach ($mensajes as $m) {
+                        $message += '\n' . $m['mensaje'];
+                        if (in_array('informacionAdicional', $m)) {
+                            $message += '\t' . $m['mensaje']['informacionAdicional'];
+                        }
+                    }
 
                     $voucher->extra_detail = $message;
                     $this->moveXmlFile($voucher, VoucherStates::RETURNED);
