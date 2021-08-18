@@ -35,7 +35,7 @@ class WSSriController
             $result = new \stdClass();
             $result = $soapClientReceipt->validarComprobante($paramenters);
 
-            if (!is_soap_fault($result)) {
+            if ($result->RespuestaRecepcionComprobante->Status != 'Success') {
                 return;
             }
 
@@ -102,7 +102,7 @@ class WSSriController
         try {
             $response = $soapClientValidation->autorizacionComprobante($user_param);
 
-            if (!is_soap_fault($response)) {
+            if ($response->RespuestaAutorizacionComprobante->Status != 'Success') {
                 return;
             }
 
@@ -116,7 +116,7 @@ class WSSriController
                     if (!file_exists(Storage::path($folder))) {
                         Storage::makeDirectory($folder);
                     }
-                    
+
                     Storage::put($toPath, $this->xmlautorized($autorizacion));
                     $voucher->xml = $toPath;
                     $voucher->state = VoucherStates::AUTHORIZED;
@@ -193,6 +193,7 @@ class WSSriController
     {
         $xml = str_replace($voucher->state, $newState, $voucher->xml);
         $folder = substr($xml, 0, strpos($xml, $newState)) . $newState;
+
         if (!file_exists(Storage::path($folder))) {
             Storage::makeDirectory($folder);
         }

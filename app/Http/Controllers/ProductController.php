@@ -82,6 +82,38 @@ class ProductController extends Controller
         }
     }
 
+    public function import(Request $request)
+    {
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $products = $request->get('products');
+
+        $newProducts = [];
+        foreach ($products as $product) {
+            array_push($newProducts, [
+                'code' => $product['code'],
+                'type_product' => $product['type_product'],
+                'name' => $product['name'],
+                'unity_id' => strlen($product['unity_id']) ? $product['unity_id'] : null,
+                'price1' => strlen($product['price1']) ? $product['price1'] : null,
+                'price2' => strlen($product['price2']) ? $product['price2'] : null,
+                'price3' => strlen($product['price3']) ? $product['price3'] : null,
+                'iva' => $product['iva']
+            ]);
+        }
+        $product = $company->branches->first()->products()->createMany($newProducts);
+
+        $products = Product::leftJoin('categories', 'categories.id', 'products.category_id')
+            ->leftJoin('unities', 'unities.id', 'products.unity_id')
+            ->where('products.branch_id', $branch->id)
+            ->select('products.*', 'categories.category', 'unities.unity')->get();
+
+        return response()->json(['msm' => 'Result from server', 'products' => ProductResources::collection($products)]);
+    }
+
     /**
      * Display the specified resource.
      *
