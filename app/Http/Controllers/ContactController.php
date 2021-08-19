@@ -102,7 +102,8 @@ class ContactController extends Controller
                 'special' => 0,
                 'identication_card' => strlen($contact['identication_card']) ? $contact['identication_card'] : null,
                 'ruc' => strlen($contact['ruc']) ? $contact['ruc'] : null,
-                'company' => $contact['company']
+                'company' => $contact['company'],
+                'address' => $contact['address']
             ]);
         }
         $contact = $company->branches->first()->contacts()->createMany($newContacts);
