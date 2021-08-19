@@ -51,10 +51,13 @@ class WSSriController
                     $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes;
                     $mensajes = json_decode(json_encode($mensajes), true);
 
+                    var_dump($mensajes);
+
                     $message = '';
                     foreach ($mensajes as $m) {
-                        var_dump('in foreach');
-                        $message += '\n' . $m->mensaje;
+                        var_dump('Si en foreach');
+                        $message += '\n' . $m['mensaje']['mensaje'];
+                        var_dump('paso 1er mensaje en foreach');
                         if (in_array('informacionAdicional', $m)) {
                             var_dump('in informacionAdicional');
                             $message += '\t' . $m->informacionAdicional;
