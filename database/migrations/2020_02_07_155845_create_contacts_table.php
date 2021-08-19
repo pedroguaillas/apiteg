@@ -21,9 +21,9 @@ class CreateContactsTable extends Migration
             $table->boolean('special'); //Contribution special (company)
             $table->string('identication_card', 10)->nullable();  //cedula //Constraint below
             $table->string('ruc', 13)->nullable();  //Constraint below
-            $table->string('company', 300)->nullable(); //razon social
+            $table->string('company', 300); //razon social
             $table->string('name', 300)->nullable();    //nombre comercial
-            $table->string('address')->nullable();
+            $table->string('address');
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->boolean('accounting')->default(false);
