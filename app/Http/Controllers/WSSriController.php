@@ -52,12 +52,12 @@ class WSSriController
                     $mensajes = json_decode(json_encode($mensajes), true);
 
                     $message = '';
-                    foreach ($mensajes as $m) {
-                        $message += '\n' . $m["mensaje"];
+                    foreach ($mensajes as $key => $value) {
+                        $message += '\n' . $value["mensaje"];
                         var_dump('paso 1er mensaje en foreach');
-                        if (in_array('informacionAdicional', $m)) {
+                        if (in_array('informacionAdicional', $value)) {
                             var_dump('in informacionAdicional');
-                            $message += '\t' . $m->informacionAdicional;
+                            $message += '\t' . $value->informacionAdicional;
                         }
                     }
 
