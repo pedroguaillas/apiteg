@@ -53,8 +53,7 @@ class WSSriController
 
                     $message = '';
                     foreach ($mensajes as $m) {
-                        var_dump($m);
-                        $message += '\n' . $m->mensaje;
+                        $message += '\n' . $m["mensaje"];
                         var_dump('paso 1er mensaje en foreach');
                         if (in_array('informacionAdicional', $m)) {
                             var_dump('in informacionAdicional');
