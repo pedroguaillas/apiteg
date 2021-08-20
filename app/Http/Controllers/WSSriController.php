@@ -50,7 +50,7 @@ class WSSriController
                 case VoucherStates::RETURNED:
                     $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes;
                     $mensajes = json_decode(json_encode($mensajes), true);
-
+                    var_dump($mensajes);
                     $message = '';
                     foreach ($mensajes as $key => $value) {
                         $message += '\n' . $value->mensaje;
