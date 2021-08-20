@@ -125,7 +125,8 @@ class ContactController extends Controller
         return response()->json([
             'contact' => Contact::find($id),
             //Falta restringir que el plan de cuentas sea solo de esa compania
-            'accounts' => ChartAccount::where('type', $company->type)->get()
+            'accounts' => []
+            // 'accounts' => ChartAccount::where('type', $company->type)->get()
         ]);
     }
 
