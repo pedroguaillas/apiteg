@@ -50,15 +50,10 @@ class WSSriController
                 case VoucherStates::RETURNED:
                     $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes;
                     $mensajes = json_decode(json_encode($mensajes), true);
-                    var_dump($mensajes);
-                    $message = '';
-                    foreach ($mensajes as $key => $value) {
-                        $message += '\n' . $value->mensaje;
-                        var_dump('paso 1er mensaje en foreach');
-                        if (in_array('informacionAdicional', $value)) {
-                            var_dump('in informacionAdicional');
-                            $message += '\t' . $value->informacionAdicional;
-                        }
+
+                    $message = $mensajes['mensaje']['identificador'] . ' : ' . $mensajes['mensaje']['mensaje'] . '. ';
+                    if (array_key_exists('informacionAdicional', $mensajes['mensaje'])) {
+                        $message .= '. ' . $mensajes['mensaje']['informacionAdicional'];
                     }
 
                     $voucher->extra_detail = $message;
@@ -137,17 +132,18 @@ class WSSriController
                     $voucher->save();
                     break;
                 case VoucherStates::REJECTED:
-                    $extra_detail = '';
-                    foreach ($autorizacion->mensajes->mensaje as $message) {
-                        $extra_detail .= 'identificador: ' . $message->identificador;
-                        $extra_detail .= ', mensaje: ' . $message->mensaje;
-                        $extra_detail .= ', tipo: ' . $message->tipo;
+                    $mensajes = json_decode(json_encode($autorizacion->mensajes), true);
+
+                    $message = $mensajes['mensaje']['tipo'] . ' ' . $mensajes['mensaje']['identificador'] . ' : ' . $mensajes['mensaje']['mensaje'];
+                    if (array_key_exists('informacionAdicional', $mensajes['mensaje'])) {
+                        $message .= '. ' . $mensajes['mensaje']['informacionAdicional'];
                     }
+
                     $toPath = str_replace($voucher->state, VoucherStates::REJECTED, $voucher->xml);
                     Storage::put($toPath, $autorizacion);
                     $voucher->xml = $toPath;
                     $voucher->state = VoucherStates::REJECTED;
-                    $voucher->extra_detail = $extra_detail;
+                    $voucher->extra_detail = $message;
                     $authorizationDate = \DateTime::createFromFormat('Y-m-d\TH:i:sP', $autorizacion->fechaAutorizacion);
                     $voucher->autorized = $authorizationDate->format('Y-m-d H:i:s');
                     $voucher->save();
