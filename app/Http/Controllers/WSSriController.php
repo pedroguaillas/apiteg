@@ -51,9 +51,9 @@ class WSSriController
                     $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes;
                     $mensajes = json_decode(json_encode($mensajes), true);
 
-                    $message = $mensajes['mensaje']['identificador'] . ' : ' . $mensajes['mensaje']['mensaje'] . '. ';
+                    $message = $mensajes['mensaje']['identificador'] . ' : ' . $mensajes['mensaje']['mensaje'] . '.';
                     if (array_key_exists('informacionAdicional', $mensajes['mensaje'])) {
-                        $message .= '. ' . $mensajes['mensaje']['informacionAdicional'];
+                        $message .= ' informacionAdicional : ' . $mensajes['mensaje']['informacionAdicional'];
                     }
 
                     $voucher->extra_detail = $message;
@@ -136,7 +136,7 @@ class WSSriController
 
                     $message = $mensajes['mensaje']['tipo'] . ' ' . $mensajes['mensaje']['identificador'] . ' : ' . $mensajes['mensaje']['mensaje'];
                     if (array_key_exists('informacionAdicional', $mensajes['mensaje'])) {
-                        $message .= '. ' . $mensajes['mensaje']['informacionAdicional'];
+                        $message .= '. informacionAdicional : ' . $mensajes['mensaje']['informacionAdicional'];
                     }
 
                     $toPath = str_replace($voucher->state, VoucherStates::REJECTED, $voucher->xml);

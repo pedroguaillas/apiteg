@@ -446,7 +446,7 @@ class XmlVoucherController extends Controller
 
         $string .= '<pagos>';
         $string .= '<pago>';
-        $string .= '<formaPago>01</formaPago>';
+        $string .= '<formaPago>20</formaPago>';
         $string .= '<total>' . $sale->total . '</total>';
         $string .= '</pago>';
         $string .= '</pagos>';
