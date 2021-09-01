@@ -477,7 +477,7 @@ class XmlVoucherController extends Controller
         foreach ($sale_items as $detail) {
             $sub_total = $detail->quantity * $detail->price;
             $discount = round($sub_total * $detail->discount * .01, 2);
-            $total = $sub_total - $discount;
+            $total = round($sub_total - $discount, 2);
             $percentage = $detail->iva === 2 ? 12 : 0;
 
             $string .= "<detalle>";
