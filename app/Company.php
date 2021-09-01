@@ -11,7 +11,7 @@ class Company extends Model
         'special', 'accounting', 'micro_business',
         'retention_agent', 'phone', 'logo_dir',
         'cert_dir', 'pass_cert', 'sign_valid_from',
-        'sign_valid_to', 'enviroment_type'
+        'sign_valid_to', 'enviroment_type', 'decimal'
     ];
 
     public function branches()

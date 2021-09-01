@@ -274,10 +274,10 @@ class VoucherController extends Controller
             $voucher->doc_realeted = $request->get('doc_realeted');
             $voucher->no_iva = $no_iva;
             $voucher->base0 = $base0;
-            $voucher->base12 = round($base12, 2);
+            $voucher->base12 = $base12;
             $voucher->iva = $iva;
             $voucher->discount = $discount;
-            $voucher->total = round($total, 2);
+            $voucher->total = $total;
             $voucher->voucher_type = $request->get('voucher_type');
             $voucher->pay_method = $request->get('pay_method');
             $voucher->paid = $voucher->total;
