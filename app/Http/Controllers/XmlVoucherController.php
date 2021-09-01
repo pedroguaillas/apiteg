@@ -234,7 +234,7 @@ class XmlVoucherController extends Controller
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
         // return $string;
-        $string .= '<liquidacionCompra id="comprobante" version="1.0.0">';
+        $string .= '<liquidacionCompra id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
 
         $string .= $this->infoTributaria($company, $sale);
 
@@ -289,8 +289,8 @@ class XmlVoucherController extends Controller
             $string .= "<codigoPrincipal>" . $detail->code . "</codigoPrincipal>";
             $string .= "<codigoAuxiliar>" . $detail->code . "</codigoAuxiliar>";
             $string .= "<descripcion>" . $detail->name . "</descripcion>";
-            $string .= "<cantidad>" . $detail->quantity . "</cantidad>";
-            $string .= "<precioUnitario>" . $detail->price . "</precioUnitario>";
+            $string .= "<cantidad>" . round($detail->quantity, $company->decimal) . "</cantidad>";
+            $string .= "<precioUnitario>" . round($detail->price, $company->decimal) . "</precioUnitario>";
             $string .= "<descuento>" . $detail->discount . "</descuento>";
             $string .= "<precioTotalSinImpuesto>" . $sub_total . "</precioTotalSinImpuesto>";
 
@@ -324,7 +324,7 @@ class XmlVoucherController extends Controller
         $buyer_id = strlen($sale->ruc) ? $sale->ruc : $sale->identication_card;
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
-        $string .= '<notaCredito id="comprobante" version="1.0.0">';
+        $string .= '<notaCredito id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
 
         $string .= $this->infoTributaria($company, $sale);
 
@@ -394,8 +394,8 @@ class XmlVoucherController extends Controller
             $string .= "<codigoPrincipal>" . $detail->code . "</codigoPrincipal>";
             $string .= "<codigoAuxiliar>" . $detail->code . "</codigoAuxiliar>";
             $string .= "<descripcion>" . $detail->name . "</descripcion>";
-            $string .= "<cantidad>" . $detail->quantity . "</cantidad>";
-            $string .= "<precioUnitario>" . $detail->price . "</precioUnitario>";
+            $string .= "<cantidad>" . round($detail->quantity, $company->decimal) . "</cantidad>";
+            $string .= "<precioUnitario>" . round($detail->price, $company->decimal) . "</precioUnitario>";
             $string .= "<descuento>" . $detail->discount . "</descuento>";
             $string .= "<precioTotalSinImpuesto>" . $sub_total . "</precioTotalSinImpuesto>";
 
@@ -429,7 +429,7 @@ class XmlVoucherController extends Controller
         $buyer_id = strlen($sale->ruc) ? $sale->ruc : $sale->identication_card;
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
-        $string .= '<factura id="comprobante" version="1.0.0">';
+        $string .= '<factura id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
 
         $string .= $this->infoTributaria($company, $sale);
 
@@ -485,8 +485,8 @@ class XmlVoucherController extends Controller
             $string .= "<codigoPrincipal>" . $detail->code . "</codigoPrincipal>";
             $string .= "<codigoAuxiliar>" . $detail->code . "</codigoAuxiliar>";
             $string .= "<descripcion>" . $detail->name . "</descripcion>";
-            $string .= "<cantidad>" . $detail->quantity . "</cantidad>";
-            $string .= "<precioUnitario>" . $detail->price . "</precioUnitario>";
+            $string .= "<cantidad>" . round($detail->quantity, $company->decimal) . "</cantidad>";
+            $string .= "<precioUnitario>" . round($detail->price, $company->decimal) . "</precioUnitario>";
             $string .= "<descuento>" . $detail->discount . "</descuento>";
             $string .= "<precioTotalSinImpuesto>" . $sub_total . "</precioTotalSinImpuesto>";
 
