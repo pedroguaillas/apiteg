@@ -121,4 +121,10 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('contact/{id}', 'ContactController@show');
     $router->post('contacts_import', 'ContactController@import');
     $router->put('contact/{id}', 'ContactController@update');
+
+    //Customers
+    $router->get('customers', 'CustomerController@index');
+    $router->post('customers', 'CustomerController@store');
+    $router->get('customers/{id}/edit', 'CustomerController@edit');
+    $router->put('customers/{id}', 'CustomerController@update');
 });

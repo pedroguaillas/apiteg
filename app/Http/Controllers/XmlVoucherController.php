@@ -9,6 +9,7 @@ use App\Movement;
 use App\Company;
 use App\Retention;
 use App\RetentionItem;
+use App\StaticClasses\VoucherStates;
 use App\Voucher;
 
 class XmlVoucherController extends Controller
@@ -112,7 +113,24 @@ class XmlVoucherController extends Controller
         $rootfile = 'xmls' . DIRECTORY_SEPARATOR . $company->ruc . DIRECTORY_SEPARATOR .
             $date->format('Y') . DIRECTORY_SEPARATOR .
             $date->format('m');
-        Storage::put($rootfile . DIRECTORY_SEPARATOR . ($in_taxs ? $retention->state : $sale->state) . DIRECTORY_SEPARATOR . $file, $str_xml_voucher);
+        Storage::put($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SAVED . DIRECTORY_SEPARATOR . $file, $str_xml_voucher);
+
+        if (file_exists($rootfile . DIRECTORY_SEPARATOR .  VoucherStates::SAVED . DIRECTORY_SEPARATOR . $file)) {
+            $rootfile = $rootfile . '/FIRMADO/' . $file;
+
+            $datas = [
+                'state' => 'FIRMADO',
+                'xml' => $rootfile
+            ];
+
+            if ($in_taxs) {
+                Retention::where('vaucher_id', $sale->movement_id)
+                    ->update($datas);
+            } else {
+                Voucher::where('movement_id', $sale->movement_id)
+                    ->update($datas);
+            }
+        }
 
         //Signner Start --------------------------
         // $public_path = '\';
@@ -134,19 +152,21 @@ class XmlVoucherController extends Controller
 
         $variable = system($java_firma);
 
-        $rootfile = $rootfile . '/FIRMADO/' . $file;
+        if (file_exists($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO' . DIRECTORY_SEPARATOR . $file)) {
+            $rootfile = $rootfile . '/FIRMADO/' . $file;
 
-        $datas = [
-            'state' => 'FIRMADO',
-            'xml' => $rootfile
-        ];
+            $datas = [
+                'state' => 'FIRMADO',
+                'xml' => $rootfile
+            ];
 
-        if ($in_taxs) {
-            Retention::where('vaucher_id', $sale->movement_id)
-                ->update($datas);
-        } else {
-            Voucher::where('movement_id', $sale->movement_id)
-                ->update($datas);
+            if ($in_taxs) {
+                Retention::where('vaucher_id', $sale->movement_id)
+                    ->update($datas);
+            } else {
+                Voucher::where('movement_id', $sale->movement_id)
+                    ->update($datas);
+            }
         }
     }
 
@@ -250,7 +270,7 @@ class XmlVoucherController extends Controller
 
         $string .= '<pagos>';
         $string .= '<pago>';
-        $string .= '<formaPago>01</formaPago>';
+        $string .= '<formaPago>20</formaPago>';
         $string .= '<total>' . $sale->total . '</total>';
         $string .= '<plazo>' . $sale->total . '</plazo>';
         $string .= '</pago>';

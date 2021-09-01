@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Customer;
 use Illuminate\Http\Request;
-use DB;
+use App\Company;
 
 class CustomerController extends Controller
 {
@@ -16,7 +17,12 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        return Customer::all();
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $customers = $company->branches->first()->customers;
+
+        return response()->json(['customers' => $customers]);
     }
 
     /**
@@ -27,7 +33,6 @@ class CustomerController extends Controller
     public function findSmart()
     {
         return Customer::all();
-        //return DB::connection('mysql2')->select("SELECT * FROM customers");
     }
 
     /**
@@ -38,23 +43,18 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $id = $request->get('id');
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
 
-        $customer = ($id > 0) ? Customer::find($id) : new Customer;
-
-        $customer->identification_type = $request->get('identification_type');
-        $customer->identification_value = $request->get('identification_value');
-        $customer->name = $request->get('name');
-        $customer->direction = $request->get('direction');
-        $customer->phone = $request->get('phone');
-        $customer->email = $request->get('email');
-        $customer->type_tax_payer = 1;
-
-        if ($customer->save()) {
-            return response()->json(['customer' => $customer]);
+        try {
+            $company->branches->first()->customers()->create($request->all());
+        } catch (\Illuminate\Database\QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                return response()->json(['message' => 'KEY_DUPLICATE'], 405);
+            }
         }
-
-        return response()->json(['customer' => null]);
     }
 
     /**
@@ -74,9 +74,10 @@ class CustomerController extends Controller
      * @param  \App\Customer  $customer
      * @return \Illuminate\Http\Response
      */
-    public function edit(Customer $customer)
+    public function edit(int $id)
     {
-        //
+        $customer = Customer::find($id);
+        return response()->json(['customer' => $customer]);
     }
 
     /**
@@ -86,9 +87,10 @@ class CustomerController extends Controller
      * @param  \App\Customer  $customer
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Customer $customer)
+    public function update(Request $request, int $id)
     {
-        //
+        $customer = Customer::findOrFail($id);
+        $customer->update($request->all());
     }
 
     /**

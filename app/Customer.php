@@ -7,5 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Customer extends Model
 {
 
-    protected $fillable = ['identification_type', 'identification_value', 'name', 'direction', 'phone', 'email', 'type_tax_payer'];
+    protected $fillable = [
+        'branch_id', 'state', 'type_identification', 'identication',
+        'name', 'address', 'phone', 'email', 'accounting', 'discount',
+        'rent_retention', 'iva_retention'
+    ];
 }

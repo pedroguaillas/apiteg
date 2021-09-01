@@ -5,7 +5,7 @@ namespace App\StaticClasses;
 class VoucherStates
 {
     const DRAFT         = 'BORRADOR';
-    const SAVED         = 'GUARDADO';
+    const SAVED         = 'CREADO';
     const ACCEPTED      = 'ACEPTADO';
     const REJECTED      = 'RECHAZADO';
     const SENDED        = 'ENVIADO';
