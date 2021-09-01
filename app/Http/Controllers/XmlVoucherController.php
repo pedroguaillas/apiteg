@@ -429,6 +429,7 @@ class XmlVoucherController extends Controller
         $buyer_id = strlen($sale->ruc) ? $sale->ruc : $sale->identication_card;
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
+        var_dump($company);
         $string .= '<factura id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
 
         $string .= $this->infoTributaria($company, $sale);
