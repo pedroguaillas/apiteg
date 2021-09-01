@@ -17,9 +17,9 @@ class CreateRetentionItemsTable extends Migration
             $table->bigIncrements('id');
             $table->smallInteger('code');        //1-Imp. Renta/2-IVA
             $table->string('tax_code');     //Foreign Key Tax
-            $table->decimal('base', 14, 6);   //base to retention
+            $table->decimal('base', 10, 2);   //base to retention
             $table->decimal('porcentage', 5, 2); //Not all tax contain porcentage retention
-            $table->decimal('value', 14, 6);        //Shuld modify value & porcentage
+            $table->decimal('value', 10, 2);        //Shuld modify value & porcentage
             $table->bigInteger('retention_id')->unsigned(); //Foreign Key Sale
 
             $table->foreign('tax_code')->references('code')->on('taxes');

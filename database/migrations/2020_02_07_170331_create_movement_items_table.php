@@ -19,7 +19,7 @@ class CreateMovementItemsTable extends Migration
             $table->unsignedBigInteger('product_id');
             $table->decimal('quantity', 14, 6);
             $table->decimal('price', 14, 6);
-            $table->decimal('discount', 14, 6)->default(0);
+            $table->decimal('discount', 10, 2)->default(0);
 
             $table->timestamps();
             $table->softDeletes();

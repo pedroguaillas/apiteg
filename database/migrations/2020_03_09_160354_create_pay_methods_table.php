@@ -17,7 +17,7 @@ class CreatePayMethodsTable extends Migration
             $table->bigIncrements('id');
             $table->bigInteger('vaucher_id')->unsigned();
             $table->char('code', 2);    //Code method of pay
-            $table->decimal('value', 14, 6);
+            $table->decimal('value', 10, 2);
             $table->integer('term')->nullable();    //Plazo
             $table->string('unit_time', 5)->nullable();
 

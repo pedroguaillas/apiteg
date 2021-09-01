@@ -20,7 +20,7 @@ class CreateMovementsTable extends Migration
             $table->integer('type');
             $table->string('description')->nullable();
             $table->boolean('seat_generate')->default(false);
-            $table->decimal('sub_total', 14, 8)->default(0);
+            $table->decimal('sub_total', 10, 2)->default(0);
 
             $table->timestamps();
             $table->softDeletes();
