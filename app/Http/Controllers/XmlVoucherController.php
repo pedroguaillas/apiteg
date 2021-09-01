@@ -102,6 +102,7 @@ class XmlVoucherController extends Controller
 
     private function sign($company, $sale, $str_xml_voucher, $in_taxs = false)
     {
+        var_dump($str_xml_voucher);
         $file = substr($str_xml_voucher, strpos($str_xml_voucher, '<claveAcceso>') + 13, 49) . '.xml';
         $date = new \DateTime($sale->date);
 
@@ -116,10 +117,9 @@ class XmlVoucherController extends Controller
         Storage::put($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SAVED . DIRECTORY_SEPARATOR . $file, $str_xml_voucher);
 
         if (file_exists($rootfile . DIRECTORY_SEPARATOR .  VoucherStates::SAVED . DIRECTORY_SEPARATOR . $file)) {
-            $rootfile = $rootfile . '/FIRMADO/' . $file;
+            $rootfile = $rootfile . "/CREADO/" . $file;
 
             $datas = [
-                'state' => 'FIRMADO',
                 'xml' => $rootfile
             ];
 
@@ -430,7 +430,6 @@ class XmlVoucherController extends Controller
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
         $string .= '<factura id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
-        var_dump($string);
 
         $string .= $this->infoTributaria($company, $sale);
 
