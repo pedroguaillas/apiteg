@@ -64,7 +64,7 @@ class XmlVoucherController extends Controller
 
         $this->sign($company, $sale, $str_xml_voucher);
 
-        if ($company->cert_dir!==null) {
+        if ($company->cert_dir !== null) {
             // Sended Start ---------------------------------------
             (new WSSriController())->sendVoucher($id, $company->enviroment_type);
             // Sended End ---------------------------------------
@@ -111,6 +111,8 @@ class XmlVoucherController extends Controller
             $retention = Retention::where('vaucher_id', $sale->movement_id)->get()->first();
         }
 
+        var_dump($str_xml_voucher);
+
         $rootfile = 'xmls' . DIRECTORY_SEPARATOR . $company->ruc . DIRECTORY_SEPARATOR .
             $date->format('Y') . DIRECTORY_SEPARATOR .
             $date->format('m');
@@ -133,7 +135,7 @@ class XmlVoucherController extends Controller
         }
 
         //Signner Start --------------------------
-        if ($company->cert_dir!==null) {
+        if ($company->cert_dir !== null) {
             // $public_path = '\';
             $public_path = '/var/www/apiteg';
             //Local --------------------------
