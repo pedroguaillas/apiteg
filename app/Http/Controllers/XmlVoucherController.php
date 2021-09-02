@@ -115,8 +115,9 @@ class XmlVoucherController extends Controller
             $date->format('Y') . DIRECTORY_SEPARATOR .
             $date->format('m');
 
-        var_dump($rootfile);
-        Storage::put($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SAVED . DIRECTORY_SEPARATOR . $file, $str_xml_voucher);
+        $folder = $rootfile . DIRECTORY_SEPARATOR . VoucherStates::SAVED . DIRECTORY_SEPARATOR;
+        Storage::put($folder . $file, $str_xml_voucher);
+        var_dump($folder . $file);
 
         if (file_exists($rootfile . DIRECTORY_SEPARATOR .  VoucherStates::SAVED . DIRECTORY_SEPARATOR . $file)) {
             $rootfile = $rootfile . "/CREADO/" . $file;
