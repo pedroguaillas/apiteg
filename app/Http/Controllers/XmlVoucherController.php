@@ -451,7 +451,7 @@ class XmlVoucherController extends Controller
             $string .= "<totalImpuesto>";
             $string .= "<codigo>2</codigo>";    // Aplied only tax to IVA
             $string .= "<codigoPorcentaje>" . $tax->percentageCode . "</codigoPorcentaje>";
-            $string .= "<baseImponible>" . round($tax->base, 2) . "</baseImponible>";
+            $string .= "<baseImponible>" . number_format($tax->base, 2, '.', '') . "</baseImponible>";
             $string .= "<tarifa>" . $tax->percentage . "</tarifa>";
             $string .= "<valor>" . $tax->value . "</valor>";
             $string .= "</totalImpuesto>";
