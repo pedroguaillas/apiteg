@@ -260,7 +260,7 @@ class XmlVoucherController extends Controller
             $string .= "<totalImpuesto>";
             $string .= "<codigo>2</codigo>";    // Aplied only tax to IVA
             $string .= "<codigoPorcentaje>" . $tax->percentageCode . "</codigoPorcentaje>";
-            $string .= "<baseImponible>" . $tax->base . "</baseImponible>";
+            $string .= "<baseImponible>" . round($tax->base, 2) . "</baseImponible>";
             $string .= "<tarifa>" . $tax->percentage . "</tarifa>";
             $string .= "<valor>" . $tax->value . "</valor>";
             $string .= "</totalImpuesto>";
@@ -302,7 +302,7 @@ class XmlVoucherController extends Controller
             $string .= "<codigo>2</codigo>";
             $string .= "<codigoPorcentaje>" . $detail->iva . "</codigoPorcentaje>";
             $string .= "<tarifa>" . ($detail->iva === 2 ? 12 : 0) . "</tarifa>";
-            $string .= "<baseImponible>" . $total . "</baseImponible>";
+            $string .= "<baseImponible>" . round($total, 2) . "</baseImponible>";
             $string .= "<valor>" . round($percentage * $total * .01, 2) . "</valor>";
             $string .= "</impuesto>";
             // }
@@ -451,7 +451,7 @@ class XmlVoucherController extends Controller
             $string .= "<totalImpuesto>";
             $string .= "<codigo>2</codigo>";    // Aplied only tax to IVA
             $string .= "<codigoPorcentaje>" . $tax->percentageCode . "</codigoPorcentaje>";
-            $string .= "<baseImponible>" . $tax->base . "</baseImponible>";
+            $string .= "<baseImponible>" . round($tax->base, 2) . "</baseImponible>";
             $string .= "<tarifa>" . $tax->percentage . "</tarifa>";
             $string .= "<valor>" . $tax->value . "</valor>";
             $string .= "</totalImpuesto>";
@@ -486,7 +486,7 @@ class XmlVoucherController extends Controller
             $string .= "<cantidad>" . round($detail->quantity, $company->decimal) . "</cantidad>";
             $string .= "<precioUnitario>" . round($detail->price, $company->decimal) . "</precioUnitario>";
             $string .= "<descuento>" . $detail->discount . "</descuento>";
-            $string .= "<precioTotalSinImpuesto>" . $sub_total . "</precioTotalSinImpuesto>";
+            $string .= "<precioTotalSinImpuesto>" . round($sub_total, 2) . "</precioTotalSinImpuesto>";
 
             $string .= "<impuestos>";
             // foreach ($this->taxes as $tax) {
@@ -494,7 +494,7 @@ class XmlVoucherController extends Controller
             $string .= "<codigo>2</codigo>";
             $string .= "<codigoPorcentaje>" . $detail->iva . "</codigoPorcentaje>";
             $string .= "<tarifa>" . ($detail->iva === 2 ? 12 : 0) . "</tarifa>";
-            $string .= "<baseImponible>" . $total . "</baseImponible>";
+            $string .= "<baseImponible>" . round($total, 2) . "</baseImponible>";
             $string .= "<valor>" . round($percentage * $total * .01, 2) . "</valor>";
             $string .= "</impuesto>";
             // }
