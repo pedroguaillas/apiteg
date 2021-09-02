@@ -111,11 +111,11 @@ class XmlVoucherController extends Controller
             $retention = Retention::where('vaucher_id', $sale->movement_id)->get()->first();
         }
 
-        var_dump($str_xml_voucher);
-
         $rootfile = 'xmls' . DIRECTORY_SEPARATOR . $company->ruc . DIRECTORY_SEPARATOR .
             $date->format('Y') . DIRECTORY_SEPARATOR .
             $date->format('m');
+
+        var_dump($rootfile);
         Storage::put($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SAVED . DIRECTORY_SEPARATOR . $file, $str_xml_voucher);
 
         if (file_exists($rootfile . DIRECTORY_SEPARATOR .  VoucherStates::SAVED . DIRECTORY_SEPARATOR . $file)) {
