@@ -64,7 +64,7 @@ class XmlVoucherController extends Controller
 
         $this->sign($company, $sale, $str_xml_voucher);
 
-        if ($company->cert_dir !== null) {
+        if ($company->cert_dir!==null) {
             // Sended Start ---------------------------------------
             (new WSSriController())->sendVoucher($id, $company->enviroment_type);
             // Sended End ---------------------------------------
@@ -103,7 +103,6 @@ class XmlVoucherController extends Controller
 
     private function sign($company, $sale, $str_xml_voucher, $in_taxs = false)
     {
-        var_dump($str_xml_voucher);
         $file = substr($str_xml_voucher, strpos($str_xml_voucher, '<claveAcceso>') + 13, 49) . '.xml';
         $date = new \DateTime($sale->date);
 
@@ -134,7 +133,7 @@ class XmlVoucherController extends Controller
         }
 
         //Signner Start --------------------------
-        if ($company->cert_dir !== null) {
+        if ($company->cert_dir!==null) {
             // $public_path = '\';
             $public_path = '/var/www/apiteg';
             //Local --------------------------
