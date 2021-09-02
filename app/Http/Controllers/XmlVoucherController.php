@@ -513,7 +513,7 @@ class XmlVoucherController extends Controller
     {
         $taxes = array();
         foreach ($sale_items as $tax) {
-            $sub_total = round($tax->quantity * $tax->price, 2);
+            $sub_total = number_format($tax->quantity * $tax->price, 2, '.', '');
             $discount = round($sub_total * $tax->discount * .01, 2);
             $total = $sub_total - $discount;
             $percentage = $tax->iva === 2 ? 12 : 0;
