@@ -116,15 +116,12 @@ class XmlVoucherController extends Controller
             $date->format('m');
 
         $folder = $rootfile . DIRECTORY_SEPARATOR . VoucherStates::SAVED . DIRECTORY_SEPARATOR;
+
         Storage::put($folder . $file, $str_xml_voucher);
-        var_dump($folder . $file);
 
-        if (file_exists($rootfile . DIRECTORY_SEPARATOR .  VoucherStates::SAVED . DIRECTORY_SEPARATOR . $file)) {
-            $rootfile = $rootfile . "/CREADO/" . $file;
+        if (file_exists(Storage::path($folder . $file))) {
 
-            $datas = [
-                'xml' => $rootfile
-            ];
+            $datas = ['xml' => $folder . $file];
 
             if ($in_taxs) {
                 Retention::where('vaucher_id', $sale->movement_id)
@@ -136,7 +133,8 @@ class XmlVoucherController extends Controller
         }
 
         //Signner Start --------------------------
-        if ($company->cert_dir !== null) {
+        // Si existe el certificado electronico y se ha creado Xml
+        if ($company->cert_dir !== null && file_exists(Storage::path($folder . $file))) {
             // $public_path = '\';
             $public_path = '/var/www/apiteg';
             //Local --------------------------
@@ -144,7 +142,8 @@ class XmlVoucherController extends Controller
 
             $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
-            if (!file_exists($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO')) {
+            // Si no existe la FIRMADO entonces Crear
+            if (!file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO'))) {
                 Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO');
             }
 
@@ -156,7 +155,8 @@ class XmlVoucherController extends Controller
 
             $variable = system($java_firma);
 
-            if (file_exists($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO' . DIRECTORY_SEPARATOR . $file)) {
+            // Si se creo el archivo FIRMADO entonces guardar estado FIRMADO Y el nuevo path XML
+            if (file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO' . DIRECTORY_SEPARATOR . $file))) {
                 $rootfile = $rootfile . '/FIRMADO/' . $file;
 
                 $datas = [
