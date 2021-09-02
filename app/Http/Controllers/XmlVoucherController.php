@@ -294,7 +294,7 @@ class XmlVoucherController extends Controller
             $string .= "<cantidad>" . round($detail->quantity, $company->decimal) . "</cantidad>";
             $string .= "<precioUnitario>" . round($detail->price, $company->decimal) . "</precioUnitario>";
             $string .= "<descuento>" . $detail->discount . "</descuento>";
-            $string .= "<precioTotalSinImpuesto>" . $sub_total . "</precioTotalSinImpuesto>";
+            $string .= "<precioTotalSinImpuesto>" . round($sub_total, 2) . "</precioTotalSinImpuesto>";
 
             $string .= "<impuestos>";
             // foreach ($this->taxes as $tax) {
@@ -397,7 +397,7 @@ class XmlVoucherController extends Controller
             $string .= "<cantidad>" . round($detail->quantity, $company->decimal) . "</cantidad>";
             $string .= "<precioUnitario>" . round($detail->price, $company->decimal) . "</precioUnitario>";
             $string .= "<descuento>" . $detail->discount . "</descuento>";
-            $string .= "<precioTotalSinImpuesto>" . $sub_total . "</precioTotalSinImpuesto>";
+            $string .= "<precioTotalSinImpuesto>" . round($sub_total, 2) . "</precioTotalSinImpuesto>";
 
             $string .= "<impuestos>";
             // foreach ($this->taxes as $tax) {
