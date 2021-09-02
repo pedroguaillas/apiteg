@@ -513,7 +513,7 @@ class XmlVoucherController extends Controller
     {
         $taxes = array();
         foreach ($sale_items as $tax) {
-            $sub_total = $tax->quantity * $tax->price;
+            $sub_total = round($tax->quantity * $tax->price, 2);
             $discount = round($sub_total * $tax->discount * .01, 2);
             $total = $sub_total - $discount;
             $percentage = $tax->iva === 2 ? 12 : 0;
@@ -521,13 +521,13 @@ class XmlVoucherController extends Controller
             $gruping = $this->grupingExist($taxes, $tax);
             if ($gruping !== -1) {
                 $aux2 = $taxes[$gruping];
-                $aux2->base += number_format($total, 2, '.', '');
+                $aux2->base += $total;
                 $aux2->value += round($percentage * $total * .01, 2);
             } else {
                 $aux = [
                     'percentageCode' => $tax->iva,
                     'percentage' => $percentage,
-                    'base' => number_format($total, 2, '.', ''),
+                    'base' => $total,
                     'value' => round($percentage * $total * .01, 2)
                 ];
                 $aux = json_encode($aux);
