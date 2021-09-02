@@ -18,9 +18,6 @@ class CreateCompaniesTable extends Migration
             $table->char('ruc', 13)->unique(); //Constraint
             $table->string('company', 300);
             $table->string('economic_activity', 300);
-            // $table->string('type'); //sociedad || persona natural --Calculable
-            // $table->date('date')->nullable();   //Date init activity economic
-            $table->integer('special')->nullable(); //Value integer only seller
             $table->boolean('accounting')->default(false);
             $table->boolean('micro_business')->default(false);
             $table->integer('retention_agent')->nullable();

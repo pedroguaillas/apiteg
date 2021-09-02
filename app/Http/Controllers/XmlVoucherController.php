@@ -64,9 +64,11 @@ class XmlVoucherController extends Controller
 
         $this->sign($company, $sale, $str_xml_voucher);
 
-        // Sended Start ---------------------------------------
-        (new WSSriController())->sendVoucher($id, $company->enviroment_type);
-        // Sended End ---------------------------------------
+        if ($company->cert_dir !== null) {
+            // Sended Start ---------------------------------------
+            (new WSSriController())->sendVoucher($id, $company->enviroment_type);
+            // Sended End ---------------------------------------
+        }
     }
 
     public function xmlRetention($sale, $company)
@@ -87,7 +89,6 @@ class XmlVoucherController extends Controller
                 'movements.sub_total',
                 'movements.type',
                 'vouchers.*',
-                'contacts.special',
                 'contacts.identication_card',
                 'contacts.ruc',
                 'contacts.company',
@@ -133,39 +134,41 @@ class XmlVoucherController extends Controller
         }
 
         //Signner Start --------------------------
-        // $public_path = '\';
-        $public_path = '/var/www/apiteg';
-        //Local --------------------------
-        // $public_path = 'D:\apps\project\apiaud';
+        if ($company->cert_dir !== null) {
+            // $public_path = '\';
+            $public_path = '/var/www/apiteg';
+            //Local --------------------------
+            // $public_path = 'D:\apps\project\apiaud';
 
-        $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
+            $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
-        if (!file_exists($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO')) {
-            Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO');
-        }
+            if (!file_exists($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO')) {
+                Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO');
+            }
 
-        // $rootfile = Storage::path($rootfile);
-        $newrootfile = Storage::path($rootfile);
+            // $rootfile = Storage::path($rootfile);
+            $newrootfile = Storage::path($rootfile);
 
-        // $java_firma = "java -jar public\Firma\dist\Firma.jar $cert $company->pass_cert $rootfile\\CREADO\\$file $rootfile\\FIRMADO $file";
-        $java_firma = "java -jar $public_path/public/Firma/dist/Firma.jar $cert $company->pass_cert $newrootfile/CREADO/$file $newrootfile/FIRMADO $file";
+            // $java_firma = "java -jar public\Firma\dist\Firma.jar $cert $company->pass_cert $rootfile\\CREADO\\$file $rootfile\\FIRMADO $file";
+            $java_firma = "java -jar $public_path/public/Firma/dist/Firma.jar $cert $company->pass_cert $newrootfile/CREADO/$file $newrootfile/FIRMADO $file";
 
-        $variable = system($java_firma);
+            $variable = system($java_firma);
 
-        if (file_exists($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO' . DIRECTORY_SEPARATOR . $file)) {
-            $rootfile = $rootfile . '/FIRMADO/' . $file;
+            if (file_exists($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO' . DIRECTORY_SEPARATOR . $file)) {
+                $rootfile = $rootfile . '/FIRMADO/' . $file;
 
-            $datas = [
-                'state' => 'FIRMADO',
-                'xml' => $rootfile
-            ];
+                $datas = [
+                    'state' => 'FIRMADO',
+                    'xml' => $rootfile
+                ];
 
-            if ($in_taxs) {
-                Retention::where('vaucher_id', $sale->movement_id)
-                    ->update($datas);
-            } else {
-                Voucher::where('movement_id', $sale->movement_id)
-                    ->update($datas);
+                if ($in_taxs) {
+                    Retention::where('vaucher_id', $sale->movement_id)
+                        ->update($datas);
+                } else {
+                    Voucher::where('movement_id', $sale->movement_id)
+                        ->update($datas);
+                }
             }
         }
     }
@@ -192,7 +195,6 @@ class XmlVoucherController extends Controller
 
         $date = new \DateTime($retention->date);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
-        $string .= $company->special !== null ? '<contribuyenteEspecial>' . $company->special . '</contribuyenteEspecial>' : null;
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
         $string .= '<tipoIdentificacionSujetoRetenido>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionSujetoRetenido>';
         $string .= '<razonSocialSujetoRetenido>' . $sale->company . '</razonSocialSujetoRetenido>';
@@ -242,8 +244,6 @@ class XmlVoucherController extends Controller
 
         $date = new \DateTime($sale->date);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
-        // $string .= '<dirEstablecimiento>null</dirEstablecimiento>';
-        $string .= $company->special !== null ? '<contribuyenteEspecial>' . $company->special . '</contribuyenteEspecial>' : null;
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
         $string .= '<tipoIdentificacionProveedor>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionProveedor>';
         $string .= '<razonSocialProveedor>' . $sale->company . '</razonSocialProveedor>';
@@ -332,8 +332,6 @@ class XmlVoucherController extends Controller
 
         $date = new \DateTime($sale->date);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
-        // $string .= '<dirEstablecimiento>null</dirEstablecimiento>';
-        $string .= $company->special !== null ? '<contribuyenteEspecial>' . $company->special . '</contribuyenteEspecial>' : null;
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
         $string .= '<tipoIdentificacionComprador>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionComprador>';
         $string .= '<razonSocialComprador>' . $sale->company . '</razonSocialComprador>';
@@ -437,8 +435,6 @@ class XmlVoucherController extends Controller
 
         $date = new \DateTime($sale->date);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
-        // $string .= '<dirEstablecimiento>null</dirEstablecimiento>';
-        $string .= $company->special !== null ? '<contribuyenteEspecial>' . $company->special . '</contribuyenteEspecial>' : null;
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
         $string .= '<tipoIdentificacionComprador>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionComprador>';
         $string .= '<razonSocialComprador>' . $sale->company . '</razonSocialComprador>';

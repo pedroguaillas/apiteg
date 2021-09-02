@@ -116,7 +116,7 @@ class CompanyController extends Controller
         //     $input['date'] = new \DateTime($input['date']);
         // }
 
-        $input['accounting'] = $input['accounting'] ? 1 : 0;
+        $input['accounting'] = in_array('accounting', $input) ? 1 : 0;
         $input['micro_business'] = in_array('micro_business', $input) ? 1 : 0;
 
         if (Company::create($input)) {
