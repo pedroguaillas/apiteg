@@ -41,7 +41,7 @@
                 <td class="relleno" colspan="2">NÚMERO DE AUTORIZACIÓN</td>
             </tr>
             <tr>
-                <td class="relleno" colspan="2">{{ $keyaccess }}</td>
+                <td class="relleno" colspan="2">{{ $company->authorization }}</td>
             </tr>
             <tr>
                 <td class="relleno">FECHA Y HORA DE AUTORIZACIÓN: </td>
@@ -49,7 +49,7 @@
             </tr>
             <tr>
                 <td class="relleno">AMBIENTE:</td>
-                <td class="align-middle">{{ $company->enviroment_type === 1 ? 'PRUEBAS' : 'PRODUCCION' }}</td>
+                <td class="align-middle">{{ (int)substr($movement->xml, -30, 1) === 1 ? 'PRUEBAS' : 'PRODUCCION' }}</td>
             </tr>
             <tr>
                 <td class="relleno">EMISIÓN:</td>

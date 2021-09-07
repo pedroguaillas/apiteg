@@ -19,7 +19,7 @@ class CreateCustomersTable extends Migration
             $table->unsignedBigInteger('branch_id');
             $table->integer('state')->default(1);   //1-activo/2-inactivo
             $table->string('type_identification', 10);    //cedula/ruc/pasaporte /Consumidor final no se registrara
-            $table->string('identication', 13)->nullable();
+            $table->string('identication', 13);
             $table->string('name', 300);    //nombre comercial
             $table->string('address');
             $table->string('phone')->nullable();
@@ -34,6 +34,7 @@ class CreateCustomersTable extends Migration
             $table->timestamps();
 
             $table->foreign('branch_id')->references('id')->on('branches');
+            $table->unique(['branch_id', 'identication'], 'customer_unique');
         });
     }
 

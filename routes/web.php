@@ -86,6 +86,10 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->put('products/{id}', 'ProductController@update');
     $router->post('products_import', 'ProductController@import');
 
+    //orders
+    $router->get('orders/create', 'OrderController@create');
+    $router->post('orders', 'OrderController@store');
+
     //Movements
     $router->get('movements', 'MovementController@index');
     $router->get('movementscreate', 'MovementController@create');

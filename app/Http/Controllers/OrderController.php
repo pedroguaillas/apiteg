@@ -8,6 +8,7 @@ use App\Voucher;
 use App\Movement;
 use App\Contact;
 use App\MovementItem;
+use App\Order;
 use App\PayMethod;
 use App\Product;
 use App\Retention;
@@ -15,7 +16,7 @@ use App\Tax;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade as PDF;
 
-class VoucherController extends Controller
+class OrderController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -29,13 +30,12 @@ class VoucherController extends Controller
         $company = Company::find($level->level_id);
         $branch = $company->branches->first();
 
-        $voucher = Voucher::join('movements', 'movements.id', 'vouchers.movement_id')
-            ->join('contacts', 'contacts.id', 'vouchers.contact_id')
-            ->leftJoin('retentions', 'retentions.vaucher_id', 'vouchers.movement_id')
-            ->select('vouchers.*', 'retentions.vaucher_id AS retention', 'retentions.state AS retention_state', 'movements.type', 'movements.date', 'contacts.company')
-            ->where('movements.branch_id', $branch->id)
+        $orders = Order::join('customers AS c', 'c.id', 'customer_id')
+            ->select('orders.*', 'c.name')
+            ->where('branch_id', $branch->id)
             ->get();
-        return response()->json(['vouchers' => $voucher]);
+
+        return response()->json(['orders' => $orders]);
     }
 
     /**
@@ -50,11 +50,9 @@ class VoucherController extends Controller
         $company = Company::find($level->level_id);
         $branch = $company->branches->first();
 
-        $products = $branch->products;
-
         return response()->json([
-            'products' => $products,
-            'contacts' => $branch->contacts,
+            'products' => $branch->products,
+            'customers' => $branch->customers,
             'taxes' => Tax::all(),
             'series' => $this->getSeries($branch->id)
         ]);
@@ -62,69 +60,46 @@ class VoucherController extends Controller
 
     private function getSeries($branch_id)
     {
-        $set_purchase = Voucher::join('movements as m', 'm.id', 'vouchers.movement_id')
-            ->select('serie')
+        $invoice = Order::select('serie')
             ->where([
-                ['type', 1], // Solo Compras
-                ['m.branch_id', $branch_id], // De la sucursal especifico
-                ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
-                ['voucher_type', 3] // 3-Liquidacion-de-compra
-            ])->orderBy('m.created_at', 'desc') // Para traer el ultimo
-            ->first();
-
-        $invoice = Voucher::join('movements as m', 'm.id', 'vouchers.movement_id')
-            ->select('serie')
-            ->where([
-                ['type', 2], // Solo Ventas
-                ['m.branch_id', $branch_id], // De la sucursal especifico
+                ['branch_id', $branch_id], // De la sucursal especifico
                 ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 ['voucher_type', 1] // 1-Factura
-            ])->orderBy('m.created_at', 'desc') // Para traer el ultimo
+            ])->orderBy('created_at', 'desc') // Para traer el ultimo
             ->first();
 
-        $cn = Voucher::join('movements as m', 'm.id', 'vouchers.movement_id')
-            ->select('serie')
+        $serie_retencion = Order::select('serie_retencion')
             ->where([
-                ['type', 2], // Solo Ventas
-                ['m.branch_id', $branch_id], // De la sucursal especifico
+                ['branch_id', $branch_id], // De la sucursal especifico
+                ['state_retencion', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
+                ['voucher_type', 1] // 1-Factura
+            ])->orderBy('created_at', 'desc') // Para traer el ultimo
+            ->first();
+
+        $cn = Order::select('serie')
+            ->where([
+                ['branch_id', $branch_id], // De la sucursal especifico
                 ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 ['voucher_type', 4] // 4-Nota-Credito
-            ])->orderBy('m.created_at', 'desc') // Para traer el ultimo
+            ])->orderBy('created_at', 'desc') // Para traer el ultimo
             ->first();
 
-        $dn = Voucher::join('movements as m', 'm.id', 'vouchers.movement_id')
-            ->select('serie')
+        $dn = Order::select('serie')
             ->where([
-                ['type', 2], // Solo Ventas
-                ['m.branch_id', $branch_id], // De la sucursal especifico
+                ['branch_id', $branch_id], // De la sucursal especifico
                 ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 ['voucher_type', 5] // 4-Nota-Debito
-            ])->orderBy('m.created_at', 'desc') // Para traer el ultimo
+            ])->orderBy('created_at', 'desc') // Para traer el ultimo
             ->first();
 
         $new_obj = [
-            'set_purchase' => $this->generedSerie($set_purchase),
             'invoice' => $this->generedSerie($invoice),
             'cn' => $this->generedSerie($cn),
             'dn' => $this->generedSerie($dn),
-            'retention' => $this->getSerieRetention($branch_id)
+            'retention' => $this->generedSerie($serie_retencion)
         ];
 
         return $new_obj;
-    }
-
-    private function getSerieRetention($branch_id)
-    {
-        //Query database
-        $retention = Retention::join('movements as m', 'm.id', 'retentions.vaucher_id')
-            ->select('serie')
-            ->where([
-                'm.type' => 1,
-                'm.branch_id' => $branch_id
-            ])
-            ->orderBy('m.created_at', 'desc')->first();
-
-        return $this->generedSerie($retention);
     }
 
     //Return the serie of sales generated
@@ -157,14 +132,10 @@ class VoucherController extends Controller
         //Recalculate ajust decimal........Start
         $products = $request->get('products');
 
-        $type = $request->get('type');
-
         $no_iva = 0;
         $base0 = 0;
         $base12 = 0;
         $discount = 0;
-
-        $account_items = array();
 
         if (count($products) > 0) {
 
@@ -184,22 +155,6 @@ class VoucherController extends Controller
                     case 6:
                         $no_iva += $total;
                         break;
-                }
-
-                $gruping = $this->grupingExist($account_items, $product['inventory_account_id']);
-
-                if ($gruping !== -1) {
-                    $account_items[$gruping][$type === 1 ? 'debit' : 'have'] += $total;
-                } else {
-                    $aux = [
-                        'chart_account_id' => $product['inventory_account_id'], //IVA COMPRAS BIENES
-                        'debit' => (int)$type === 1 ? $total : 0,
-                        'have' => (int)$type === 2 ? $total : 0
-                    ];
-                    $aux = json_encode($aux);
-                    $aux = json_decode($aux, true);
-
-                    $account_items[] = $aux;
                 }
             }
 
@@ -225,14 +180,6 @@ class VoucherController extends Controller
             $total = $sub_total + $iva;
         }
 
-        if ($total === 0) {
-            return response()->json([
-                'msg' => ($type === 2) ?
-                    'En una venta se requiere que se registre los productos' :
-                    'En una compra se requiere que se registre los productos'
-            ]);
-        }
-
         $id = $request->get('id');
         if ($id > 0) {
             $movement = Movement::find($id);
@@ -249,12 +196,10 @@ class VoucherController extends Controller
 
         $movement->branch_id = $branch->id;
         $movement->date = $date;
-        $movement->type = $type;
         $movement->sub_total = $sub_total;
         $description = $request->get('description');
         if ($description === null || $description === '') {
-            $description = $type === 1 ? 'Compra' : 'Venta';
-            $description .= ' ' . $movement->date;
+            $description = 'Venta ' . $movement->date;
         }
         $movement->description = $description;
         $movement->seat_generate = true; //Only true not is necesary by generate seat
@@ -308,36 +253,12 @@ class VoucherController extends Controller
                 $pay = $pay_methods[0];
                 $pay['vaucher_id'] = $movement->id;
                 PayMethod::create($pay);
-                // $pays = array();
-                // foreach ($pay_methods as $pay) {
-                //     array_push($pays, new PayMethod($pay));
-                // }
-                // PayMethod::create($pays);
-                // $voucher->paymethods()->saveMany($pays);
-                // $voucher->paymethods()->createMany($pay_methods);
             }
-
-            // (new AccountEntryController())->store_by_movement_id($movement->id);
 
             if ($request->get('send')) {
                 (new XmlVoucherController())->xml($movement->id);
-                // $this->sign($movement->id);
             }
         }
-    }
-
-    private function grupingExist($inventories, $id)
-    {
-        $result = -1;
-        $i = 0;
-        while ($i < count($inventories) && $result === -1) {
-            if ($inventories[$i]['chart_account_id'] === $id) {
-                $result = $i;
-            }
-            $i++;
-        }
-
-        return $result;
     }
 
     /**
@@ -424,12 +345,22 @@ class VoucherController extends Controller
 
         $company = Company::find($level->level_id);
 
+        $keyaccess = (new \DateTime($movement->date))->format('dmY') . str_pad($movement->voucher_type, 2, '0', STR_PAD_LEFT) .
+            $company->ruc . '1' . substr($movement->serie, 0, 3) .
+            substr($movement->serie, 4, 3) . substr($movement->serie, 8, 9)
+            // . $this->generateRandomNumericCode() . '1';
+            . '123456781';
+
+        $company->enviroment_type = (int)substr($movement->xml, -30, 1);
+
+        $keyaccess .= (new XmlVoucherController())->generaDigitoModulo11($keyaccess);
+
         switch ($movement->voucher_type) {
             case 1:
-                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items'));
+                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items', 'keyaccess'));
                 break;
             case 3:
-                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items'));
+                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items', 'keyaccess'));
                 break;
             case 4:
                 $invoice = Movement::select('date', 'serie')
@@ -437,7 +368,7 @@ class VoucherController extends Controller
                     ->where('movements.id', $movement->doc_realeted)
                     ->first();
 
-                $pdf = PDF::loadView('vouchers/creditnote', compact('movement', 'company', 'movement_items', 'invoice'));
+                $pdf = PDF::loadView('vouchers/creditnote', compact('movement', 'company', 'movement_items', 'keyaccess', 'invoice'));
                 break;
         }
 
