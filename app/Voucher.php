@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Voucher extends Model
 {
     protected $fillable = [
-        'movement_id', 'serie', 'contact_id', 'doc_realeted',
-        'expiration_days', 'no_iva', 'base0', 'base12',
-        'iva', 'sub_total', 'discount', 'total',
-        'voucher_type', 'pay_method', 'paid'
-        //date, description .... In movement.
-        //type (1-ingreso, 2-salida)
+        'movement_id', 'serie', 'contact_id',
+        'doc_realeted', 'expiration_days',
+        'no_iva', 'base0', 'base12', 'iva',
+        'sub_total', 'discount', 'total',
+        'voucher_type', 'pay_method', 'paid',
+        // Datos para la facturacion electrica
+        'state', 'autorized', 'authorization',
+        'iva_retention', 'rent_retention',
+        'xml', 'extra_detail'
     ];
 
     //Problem ORM
