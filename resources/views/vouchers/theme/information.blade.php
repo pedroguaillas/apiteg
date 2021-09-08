@@ -57,7 +57,9 @@
             </tr>
             <tr>
                 <td class="relleno" colspan="2">CLAVE DE ACCESO</td>
-                <td class="align-middle">{{ (int)substr($movement->xml, -53, 49) === 1 ? 'PRUEBAS' : 'PRODUCCION' }}</td>
+            </tr>
+            <tr>
+                <td class="relleno" colspan="2">{{ substr($movement->xml, -53, 49) }}</td>
             </tr>
             <tr>
                 <td class="relleno" colspan="2">
