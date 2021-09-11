@@ -18,10 +18,10 @@ class CreateCustomersTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('branch_id');
             $table->integer('state')->default(1);   //1-activo/2-inactivo
-            $table->string('type_identification', 10);    //cedula/ruc/pasaporte /Consumidor final no se registrara
+            $table->string('type_identification', 10);    //cedula/ruc/pasaporte/Consumidor final
             $table->string('identication', 13);
             $table->string('name', 300);    //nombre comercial
-            $table->string('address');
+            $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->boolean('accounting')->default(false);

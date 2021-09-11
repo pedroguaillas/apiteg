@@ -30,7 +30,7 @@ class CreateOrdersTable extends Migration
             $table->decimal('iva', 8, 2)->default(0);    //value iva
             $table->decimal('discount', 8, 2)->default(0);
             $table->decimal('total', 8, 2)->default(0);
-            $table->smallInteger('voucher_type'); //Type voucher 01-F / 03-NC / 04-NC / 05-ND
+            $table->smallInteger('voucher_type')->default(1); //Type voucher 01-F / 03-NC / 04-NC / 05-ND
             $table->decimal('paid', 8, 2)->default(0);   //Mount paid <= total ... parcial mount paid
 
             //Comprobante Electronica Inicio +++++++++++++++

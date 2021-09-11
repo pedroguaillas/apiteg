@@ -33,6 +33,11 @@ class Branch extends Model
         return $this->belongsTo(Company::class);
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function movements()
     {
         return $this->hasMany(Movement::class);

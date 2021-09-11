@@ -44,7 +44,13 @@ class BranchController extends Controller
         $auth = Auth::user();
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
-        $company->branches()->create($request->all());
+        $branch = $company->branches()->create($request->all());
+
+        $branch->customers()->create([
+            'type_identification' => 'cf',
+            'identication' => '9999999999999',
+            'name' => 'Consumidor Final'
+        ]);
     }
 
     /**
