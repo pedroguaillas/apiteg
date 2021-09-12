@@ -95,6 +95,9 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
     //Order Xml
     $router->get('orders/xml/{id}', 'OrderXmlController@xml');
+    $router->get('orders/download/{id}', 'OrderXmlController@downloadXml');
+    $router->get('orders/sendsri/{id}', 'WSSriOrderController@sendOrder');
+    $router->get('orders/authorizesri/{id}', 'WSSriOrderController@authorizeOrder');
 
     //Movements
     $router->get('movements', 'MovementController@index');
