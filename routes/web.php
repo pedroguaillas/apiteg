@@ -90,7 +90,11 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('orders', 'OrderController@index');
     $router->get('orders/create', 'OrderController@create');
     $router->post('orders', 'OrderController@store');
-    $router->get('orders/{id}/edit', 'OrderController@show');
+    $router->get('orders/{id}', 'OrderController@show');
+    $router->put('orders/{id}', 'OrderController@update');
+
+    //Order Xml
+    $router->get('orders/xml/{id}', 'OrderXmlController@xml');
 
     //Movements
     $router->get('movements', 'MovementController@index');

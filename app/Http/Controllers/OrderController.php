@@ -6,12 +6,10 @@ use App\Company;
 use Illuminate\Http\Request;
 use App\Voucher;
 use App\Movement;
-use App\Contact;
 use App\MovementItem;
 use App\Order;
-use App\PayMethod;
+use App\OrderItem;
 use App\Product;
-use App\Retention;
 use App\Tax;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade as PDF;
@@ -159,25 +157,18 @@ class OrderController extends Controller
 
         $order = Order::findOrFail($id);
 
+        $orderitems = Product::join('order_items AS oi', 'oi.product_id', 'products.id')
+            ->select('products.iva', 'oi.*')
+            ->where('order_id', $order->id)
+            ->get();
+
         return response()->json([
             'products' => $branch->products,
             'customers' => $branch->customers,
             'order' => $order,
-            'order_items' => $order->orderitems,
+            'order_items' => $orderitems,
             'series' => $this->getSeries($branch)
         ]);
-    }
-
-    public function showByContact($contact_id)
-    {
-        $vouchers = Voucher::select('movement_id', 'serie', 'total', 'date', 'state')
-            ->join('movements', 'movements.id', 'vouchers.movement_id')
-            ->where([
-                ['contact_id', $contact_id],
-                ['voucher_type', 1]
-            ])->get();
-
-        return response()->json(['documents' => $vouchers]);
     }
 
     public function showPdf($id)
@@ -201,7 +192,6 @@ class OrderController extends Controller
         $keyaccess = (new \DateTime($movement->date))->format('dmY') . str_pad($movement->voucher_type, 2, '0', STR_PAD_LEFT) .
             $company->ruc . '1' . substr($movement->serie, 0, 3) .
             substr($movement->serie, 4, 3) . substr($movement->serie, 8, 9)
-            // . $this->generateRandomNumericCode() . '1';
             . '123456781';
 
         $company->enviroment_type = (int)substr($movement->xml, -30, 1);
@@ -226,6 +216,36 @@ class OrderController extends Controller
         }
 
         return $pdf->stream();
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Order  $order
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        if ($order->update($request->except(['id', 'products', 'send']))) {
+            $products = $request->get('products');
+
+            if (count($products) > 0) {
+                $array = [];
+                foreach ($products as $product) {
+                    $array[] = [
+                        'product_id' => $product['product_id'],
+                        'quantity' => $product['quantity'],
+                        'price' => $product['price'],
+                        'discount' => $product['discount']
+                    ];
+                }
+                OrderItem::where('order_id', $order->id)->delete();
+                $order->orderitems()->createMany($array);
+            }
+        }
     }
 
     /**
