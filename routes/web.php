@@ -92,12 +92,18 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->post('orders', 'OrderController@store');
     $router->get('orders/{id}', 'OrderController@show');
     $router->put('orders/{id}', 'OrderController@update');
+    $router->get('orders/{id}/pdf', 'OrderController@showPdf');
 
     //Order Xml
     $router->get('orders/xml/{id}', 'OrderXmlController@xml');
     $router->get('orders/download/{id}', 'OrderXmlController@downloadXml');
     $router->get('orders/sendsri/{id}', 'WSSriOrderController@sendOrder');
     $router->get('orders/authorizesri/{id}', 'WSSriOrderController@authorizeOrder');
+
+    //shops
+    $router->get('shops', 'ShopController@index');
+    $router->get('shops/create', 'ShopController@create');
+    $router->post('shops', 'ShopController@store');
 
     //Movements
     $router->get('movements', 'MovementController@index');
@@ -140,4 +146,10 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->post('customers', 'CustomerController@store');
     $router->get('customers/{id}/edit', 'CustomerController@edit');
     $router->put('customers/{id}', 'CustomerController@update');
+
+    // Proveedores
+    $router->get('providers', 'ProviderController@index');
+    $router->post('providers', 'ProviderController@store');
+    $router->get('providers/{id}/edit', 'ProviderController@edit');
+    $router->put('providers/{id}', 'ProviderController@update');
 });

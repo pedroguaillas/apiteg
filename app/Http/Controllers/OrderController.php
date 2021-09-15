@@ -6,7 +6,6 @@ use App\Company;
 use Illuminate\Http\Request;
 use App\Voucher;
 use App\Movement;
-use App\MovementItem;
 use App\Order;
 use App\OrderItem;
 use App\Product;
@@ -138,6 +137,10 @@ class OrderController extends Controller
                     ];
                 }
                 $order->orderitems()->createMany($array);
+
+                if ($request->get('send')) {
+                    (new OrderXmlController())->xml($order->id);
+                }
             }
         }
     }
@@ -173,37 +176,26 @@ class OrderController extends Controller
 
     public function showPdf($id)
     {
-        $movement = Movement::join('vouchers', 'vouchers.movement_id', 'movements.id')
-            ->join('contacts', 'vouchers.contact_id', 'contacts.id')
-            ->select('movements.*', 'vouchers.*', 'contacts.*')
-            ->where('movements.id', $id)
+        $movement = Order::join('customers AS c', 'orders.customer_id', 'c.id')
+            ->select('orders.*', 'c.*')
+            ->where('orders.id', $id)
             ->first();
 
-        $movement_items = MovementItem::join('products', 'products.id', 'movement_items.product_id')
-            ->select('products.*', 'movement_items.*')
-            ->where('movement_items.movement_id', $id)
+        $movement_items = OrderItem::join('products', 'products.id', 'order_items.product_id')
+            ->select('products.*', 'order_items.*')
+            ->where('order_items.order_id', $id)
             ->get();
 
         $auth = Auth::user();
         $level = $auth->companyusers->first();
-
         $company = Company::find($level->level_id);
-
-        $keyaccess = (new \DateTime($movement->date))->format('dmY') . str_pad($movement->voucher_type, 2, '0', STR_PAD_LEFT) .
-            $company->ruc . '1' . substr($movement->serie, 0, 3) .
-            substr($movement->serie, 4, 3) . substr($movement->serie, 8, 9)
-            . '123456781';
-
-        $company->enviroment_type = (int)substr($movement->xml, -30, 1);
-
-        $keyaccess .= (new XmlVoucherController())->generaDigitoModulo11($keyaccess);
 
         switch ($movement->voucher_type) {
             case 1:
-                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items', 'keyaccess'));
+                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items'));
                 break;
             case 3:
-                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items', 'keyaccess'));
+                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items'));
                 break;
             case 4:
                 $invoice = Movement::select('date', 'serie')
@@ -211,7 +203,7 @@ class OrderController extends Controller
                     ->where('movements.id', $movement->doc_realeted)
                     ->first();
 
-                $pdf = PDF::loadView('vouchers/creditnote', compact('movement', 'company', 'movement_items', 'keyaccess', 'invoice'));
+                $pdf = PDF::loadView('vouchers/creditnote', compact('movement', 'company', 'movement_items', 'invoice'));
                 break;
         }
 

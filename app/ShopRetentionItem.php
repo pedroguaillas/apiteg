@@ -4,11 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ShopItem extends Model
+class ShopRetentionItem extends Model
 {
     protected $fillable = [
-        'shop_id', 'product_id',
-        'quantity', 'price', 'discount'
+        'code', 'tax_code', 'base',
+        'porcentage', 'value', 'shop_id'
     ];
 
     /**

@@ -28,6 +28,11 @@ class Branch extends Model
         return $this->hasMany(Customer::class);
     }
 
+    public function providers()
+    {
+        return $this->hasMany(Provider::class);
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);

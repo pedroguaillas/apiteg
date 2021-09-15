@@ -49,7 +49,7 @@
             </tr>
             <tr>
                 <td class="relleno">AMBIENTE:</td>
-                <td class="align-middle">{{ (int)substr($movement->xml, -30, 1) === 1 ? 'PRUEBAS' : 'PRODUCCION' }}</td>
+                <td class="align-middle">{{ $movement->xml!== null ? (int)substr($movement->xml, -30, 1) === 1 ? 'PRUEBAS' : 'PRODUCCION' : null }}</td>
             </tr>
             <tr>
                 <td class="relleno">EMISIÓN:</td>

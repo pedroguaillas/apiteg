@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateOrdersTable extends Migration
+class CreateShopsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('shops', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('branch_id');
             $table->date('date');
@@ -21,7 +21,7 @@ class CreateOrdersTable extends Migration
             $table->decimal('sub_total', 8, 2)->default(0);
 
             $table->string('serie', 17); //Serie Establecimiento, punto de emisión y secuencia.
-            $table->unsignedBigInteger('customer_id')->unsigned();
+            $table->unsignedBigInteger('provider_id')->unsigned(); //Cliente puede ser nulo cuando sea cliente final.
             $table->bigInteger('doc_realeted')->nullable();
             $table->integer('expiration_days')->default(0);
             $table->decimal('no_iva', 8, 2)->default(0);
@@ -30,29 +30,35 @@ class CreateOrdersTable extends Migration
             $table->decimal('iva', 8, 2)->default(0);    //value iva
             $table->decimal('discount', 8, 2)->default(0);
             $table->decimal('total', 8, 2)->default(0);
-            $table->smallInteger('voucher_type')->default(1); //Type voucher 01-F / 04-NC / 05-ND
+            $table->smallInteger('voucher_type')->default(1); //Type voucher 01-F / 03-LC / 04-NC / 05-ND
             $table->decimal('paid', 8, 2)->default(0);   //Mount paid <= total ... parcial mount paid
 
-            //Comprobante Electronica Inicio +++++++++++++++
+            //Solo para liquidacion en compra que sea electronica Inicio +++++++++++++++
             //CREADO-ENVIADO-RECIBIDA-DEVUELTA-ACEPTADO-RECHAZADO-EN_PROCESO-AUTORIZADO-NO_AUTORIZADO-CANCELADO
-            $table->char('state', 15)->default('CREADO');
+            $table->char('state', 15)->nullable();
             $table->date('autorized')->nullable();
             $table->string('authorization', 49)->nullable();
             $table->decimal('iva_retention', 8, 2)->default(0);
             $table->decimal('rent_retention', 8, 2)->default(0);
             $table->string('xml')->nullable();
             $table->string('extra_detail')->nullable();
-            //Comprobante Electronica Fin ++++++++++++++++++
+            //Solo para liquidacion en compra que sea electronica Fin ++++++++++++++++++
 
             // Retencion
             $table->string('serie_retencion', 17)->nullable();  //serie retention
             $table->date('date_retention')->nullable();         //date retention <fechaEmision>
+
+            // Retencion electronica
+            $table->string('state_retencion', 15)->nullable();  //state retention
+            $table->date('autorized_retention')->nullable();
             $table->string('authorization_retention', 49)->nullable();
+            $table->string('xml_retention')->nullable();
+            $table->string('extra_detail_retention')->nullable();
 
             $table->timestamps();
 
             $table->foreign('branch_id')->references('id')->on('branches');
-            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->foreign('provider_id')->references('id')->on('providers');
         });
     }
 
@@ -63,6 +69,6 @@ class CreateOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('shops');
     }
 }

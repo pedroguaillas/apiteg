@@ -37,8 +37,8 @@
                 <td style="padding: .5em; text-align: center;">{{ number_format($item->quantity, $company->decimal) }}</td>
                 <td style="padding: .5em;">{{ $item->name }}</td>
                 <td style="padding: .5em; text-align: right;">{{ number_format($item->price, $company->decimal) }}</td>
-                <td style="padding: .5em; text-align: right;">{{ number_format($item->discount, $company->decimal) }}</td>
-                <td style="padding: .5em; text-align: right;">{{ number_format($item->quantity * $item->price, $company->decimal) }}</td>
+                <td style="padding: .5em; text-align: right;">{{ number_format($item->discount, 2) }}</td>
+                <td style="padding: .5em; text-align: right;">{{ number_format($item->quantity * $item->price, 2) }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -51,7 +51,7 @@
     <tbody>
         <tr>
             <td>
-                @include('vouchers.theme.additionalinformation')
+                <!-- @include('vouchers.theme.additionalinformation') -->
                 @include('vouchers.theme.payment')
             </td>
             <td>@include('vouchers.theme.total')</td>

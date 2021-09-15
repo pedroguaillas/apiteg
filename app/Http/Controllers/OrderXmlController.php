@@ -54,7 +54,7 @@ class OrderXmlController extends Controller
         $this->sign($company, $order, $str_xml_voucher);
     }
 
-    private function sign($company, $order, $str_xml_voucher, $in_taxs = false)
+    private function sign($company, $order, $str_xml_voucher)
     {
         $file = substr($str_xml_voucher, strpos($str_xml_voucher, '<claveAcceso>') + 13, 49) . '.xml';
         $date = new \DateTime($order->date);
@@ -100,6 +100,7 @@ class OrderXmlController extends Controller
                 $order->xml = $rootfile . '/FIRMADO/' . $file;
                 $order->state = 'FIRMADO';
                 $order->save();
+                (new WSSriOrderController())->sendOrder($order->id);
             }
         }
     }

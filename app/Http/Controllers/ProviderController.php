@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Provider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use DB;
+use App\Company;
+use App\Provider;
 
 class ProviderController extends Controller
 {
@@ -15,14 +16,12 @@ class ProviderController extends Controller
      */
     public function index()
     {
-        $providers = Provider::all();
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $providers = $company->branches->first()->providers;
 
-        $array = array();
-        foreach ($providers as $provider) {
-            $provider->accounting = $provider->accounting == 1;
-            array_push($array, $provider);
-        }
-        return $array;
+        return response()->json(['providers' => $providers]);
     }
 
     /**
@@ -53,26 +52,18 @@ class ProviderController extends Controller
      */
     public function store(Request $request)
     {
-        $id = $request->get('id');
-        if ($id > 0) {
-            $provider = Provider::find($id);
-        } else {
-            $provider = new Provider;
-        }
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
 
-        $provider->identification_value = $request->get('identification_value');
-        $provider->identification_type = $request->get('identification_type');
-        $provider->name = $request->get('name');
-        $provider->type = $request->get('type');
-        $provider->accounting = $request->get('accounting');
-        $provider->direction = $request->get('direction');
-        $provider->phone = $request->get('phone');
-        $provider->mail = $request->get('mail');
-        if ($provider->save()) {
-            return response()->json(['provider' => $provider]);
+        try {
+            $company->branches->first()->providers()->create($request->all());
+        } catch (\Illuminate\Database\QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                return response()->json(['message' => 'KEY_DUPLICATE'], 405);
+            }
         }
-
-        return response()->json(['provider' => null]);
     }
 
     /**
@@ -92,9 +83,10 @@ class ProviderController extends Controller
      * @param  \App\Provider  $provider
      * @return \Illuminate\Http\Response
      */
-    public function edit(Provider $provider)
+    public function edit($id)
     {
-        //
+        $provider = Provider::findOrFail($id);
+        return response()->json(['provider' => $provider]);
     }
 
     /**
@@ -104,9 +96,10 @@ class ProviderController extends Controller
      * @param  \App\Provider  $provider
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Provider $provider)
+    public function update(Request $request, $id)
     {
-        //
+        $provider = Provider::findOrFail($id);
+        $provider->update($request->except(['id']));
     }
 
     /**

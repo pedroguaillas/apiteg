@@ -9,7 +9,7 @@
         <tbody>
             <tr>
                 <td>SIN UTILIZAR EL SISTEMA FINANCIERO</td>
-                <td style="padding-right: .5em; text-align: right;">336.00</td>
+                <td style="padding-right: .5em; text-align: right;">{{ number_format($movement->total, 2) }}</td>
             </tr>
         </tbody>
     </table>

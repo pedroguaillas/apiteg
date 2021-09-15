@@ -66,28 +66,13 @@ class CompanyController extends Controller
             // Load from API
             $image = $request->file('logo');
             $imagename = $request->ruc . '.' . $image->getClientOriginalExtension();
-            $destinationPath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'logos');
-            $image->move($destinationPath, $imagename);
+            $request->file('logo')->storeAs('logos', $imagename);
             $input['logo_dir'] = $imagename;
         }
 
         if ($request->cert !== NULL) {
 
             $certname = $request->ruc . $request->extention_cert;
-
-            // $app = storage_path('app');
-            // if (!file_exists($app)) {
-            //     mkdir($app, 0777, true);
-            // }
-
-            // $signs = storage_path('app' . DIRECTORY_SEPARATOR . 'signs');
-            // if (!file_exists($signs)) {
-            //     mkdir($signs, 0777, true);
-            // }
-
-            // if (!file_exists($dir_file)) {
-            //     mkdir($dir_file, 0777, true);
-            // }
 
             $request->file('cert')->storeAs('cert', $certname);
 
@@ -111,10 +96,6 @@ class CompanyController extends Controller
                 }
             }
         }
-
-        // if ($request->date !== NULL) {
-        //     $input['date'] = new \DateTime($input['date']);
-        // }
 
         $input['accounting'] = in_array('accounting', $input) ? 1 : 0;
         $input['micro_business'] = in_array('micro_business', $input) ? 1 : 0;
