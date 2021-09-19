@@ -36,7 +36,7 @@ class CreateOrdersTable extends Migration
             //Comprobante Electronica Inicio +++++++++++++++
             //CREADO-ENVIADO-RECIBIDA-DEVUELTA-ACEPTADO-RECHAZADO-EN_PROCESO-AUTORIZADO-NO_AUTORIZADO-CANCELADO
             $table->char('state', 15)->default('CREADO');
-            $table->date('autorized')->nullable();
+            $table->timestamp('autorized')->nullable();
             $table->string('authorization', 49)->nullable();
             $table->decimal('iva_retention', 8, 2)->default(0);
             $table->decimal('rent_retention', 8, 2)->default(0);

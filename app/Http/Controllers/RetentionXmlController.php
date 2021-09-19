@@ -84,7 +84,7 @@ class RetentionXmlController extends Controller
                 $shop->xml_retention = $rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED . DIRECTORY_SEPARATOR . $file;
                 $shop->state_retencion = VoucherStates::SIGNED;
                 $shop->save();
-                (new WSSriRetentionController())->sendsri($shop->id);
+                (new WSSriRetentionController())->sendSri($shop->id);
             }
         }
     }
@@ -126,7 +126,7 @@ class RetentionXmlController extends Controller
             $string .= '<valorRetenido>' . number_format($item->value, $company->decimal) . '</valorRetenido>';
             $string .= "<codDocSustento>01</codDocSustento>"; //01 Facturas
             $string .= "<numDocSustento>" . str_replace('-', '', $shop->serie) . "</numDocSustento>";
-            $string .= "<fechaEmisionDocSustento>" . $date->format('d/m/Y') . "</fechaEmisionDocSustento>";
+            $string .= "<fechaEmisionDocSustento>" . (new \DateTime($shop->date))->format('d/m/Y') . "</fechaEmisionDocSustento>";
             $string .= "</impuesto>";
         }
         $string .= "</impuestos>";

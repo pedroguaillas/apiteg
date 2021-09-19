@@ -36,7 +36,7 @@ class CreateShopsTable extends Migration
             //Solo para liquidacion en compra que sea electronica Inicio +++++++++++++++
             //CREADO-ENVIADO-RECIBIDA-DEVUELTA-ACEPTADO-RECHAZADO-EN_PROCESO-AUTORIZADO-NO_AUTORIZADO-CANCELADO
             $table->char('state', 15)->nullable();
-            $table->date('autorized')->nullable();
+            $table->timestamp('autorized')->nullable();
             $table->string('authorization', 49)->nullable();
             $table->decimal('iva_retention', 8, 2)->default(0);
             $table->decimal('rent_retention', 8, 2)->default(0);
@@ -50,7 +50,7 @@ class CreateShopsTable extends Migration
 
             // Retencion electronica
             $table->string('state_retencion', 15)->nullable();  //state retention
-            $table->date('autorized_retention')->nullable();
+            $table->timestamp('autorized_retention')->nullable();
             $table->string('authorization_retention', 49)->nullable();
             $table->string('xml_retention')->nullable();
             $table->string('extra_detail_retention')->nullable();
