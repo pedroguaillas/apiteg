@@ -139,7 +139,7 @@ class WSSriRetentionController
                     }
 
                     $toPath = str_replace($shop->state_retencion, VoucherStates::REJECTED, $shop->xml_retention);
-                    Storage::put($toPath, $autorizacion);
+                    Storage::put($toPath, $this->xmlautorized($autorizacion));
                     $shop->xml_retention = $toPath;
                     $shop->state_retencion = VoucherStates::REJECTED;
                     $shop->extra_detail_retention = $message;
@@ -170,8 +170,10 @@ class WSSriRetentionController
         $estado = $dom->createElement('estado', $comprobante->estado);
         $autorizacion->appendChild($estado);
 
-        $auth = $dom->createElement('numeroAutorizacion', $comprobante->numeroAutorizacion);
-        $autorizacion->appendChild($auth);
+        if ($comprobante->estado === VoucherStates::AUTHORIZED) {
+            $auth = $dom->createElement('numeroAutorizacion', $comprobante->numeroAutorizacion);
+            $autorizacion->appendChild($auth);
+        }
 
         $fechaAutorizacion = $dom->createElement('fechaAutorizacion', $comprobante->fechaAutorizacion);
         $autorizacion->appendChild($fechaAutorizacion);
