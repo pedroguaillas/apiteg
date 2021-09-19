@@ -7,9 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\AccountEntry;
 use App\ChartAccount;
 use App\Company;
-use App\Movement;
-use App\MovementItem;
-use App\Retention;
+use App\ShopRetentionItem;
 
 class AccountEntryController extends Controller
 {
@@ -173,7 +171,7 @@ class AccountEntryController extends Controller
      */
     public function store_by_movement_id(int $id)
     {
-        $movement = Movement::findOrFail($id);
+        $movement = ShopRetentionItem::findOrFail($id);
 
         $auth = Auth::user();
         $level = $auth->companyusers->first();
@@ -186,7 +184,7 @@ class AccountEntryController extends Controller
         $accountEntry->branch_id = $company->branches->first()->id;
         $accountEntry->save();
 
-        $movement_items = MovementItem::join('products', 'products.id', 'movement_items.product_id')
+        $movement_items = ShopRetentionItem::join('products', 'products.id', 'movement_items.product_id')
             ->select(
                 'active_account_id',
                 'price',
@@ -213,7 +211,7 @@ class AccountEntryController extends Controller
             'have' => 0
         ]);
 
-        $retentions = Retention::where('vaucher_id', $id)->get()->first();
+        $retentions = ShopRetentionItem::where('vaucher_id', $id)->get()->first();
 
         // Valor retenido en iva
         $valri = 0;

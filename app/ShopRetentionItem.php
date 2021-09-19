@@ -11,17 +11,11 @@ class ShopRetentionItem extends Model
         'porcentage', 'value', 'shop_id'
     ];
 
-    /**
-     * Get the post that owns the comment.
-     */
     public function shop()
     {
         return $this->belongsTo(Shop::class);
     }
 
-    /**
-     * Get the post that owns the comment.
-     */
     public function product()
     {
         return $this->belongsTo(Product::class);

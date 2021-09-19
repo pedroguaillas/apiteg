@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Company;
 use Illuminate\Http\Request;
-use App\Voucher;
-use App\Movement;
 use App\Order;
 use App\OrderItem;
 use App\Product;
@@ -198,7 +196,7 @@ class OrderController extends Controller
                 $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items'));
                 break;
             case 4:
-                $invoice = Movement::select('date', 'serie')
+                $invoice = Order::select('date', 'serie')
                     ->join('vouchers', 'vouchers.movement_id', 'movements.id')
                     ->where('movements.id', $movement->doc_realeted)
                     ->first();
@@ -246,7 +244,7 @@ class OrderController extends Controller
      * @param  \App\Voucher  $voucher
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Voucher $voucher)
+    public function destroy($id)
     {
         //
     }

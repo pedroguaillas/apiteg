@@ -8,7 +8,7 @@ use App\Order;
 
 class WSSriOrderController
 {
-    public function sendOrder($id)
+    public function send($id)
     {
         $order = Order::find($id);
         $environment = substr($order->xml, -30, 1);
@@ -45,7 +45,7 @@ class WSSriOrderController
             switch ($result->RespuestaRecepcionComprobante->estado) {
                 case VoucherStates::RECEIVED:
                     $this->moveXmlFile($order, VoucherStates::RECEIVED);
-                    $this->authorizeOrder($id);
+                    $this->authorize($id);
                     break;
                 case VoucherStates::RETURNED:
                     $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes;
@@ -70,7 +70,7 @@ class WSSriOrderController
         }
     }
 
-    public function authorizeOrder($id)
+    public function authorize($id)
     {
         $order = Order::find($id);
         $environment = substr($order->xml, -30, 1);

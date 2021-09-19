@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\StaticClasses\VoucherStates;
 use Illuminate\Support\Facades\Storage;
-use App\Voucher;
+use App\Shop;
 
-class WSSriController
+class WSSriRetentionController
 {
-    public function sendVoucher($voucher_id)
+    public function sendSri($id)
     {
-        $voucher = Voucher::find($voucher_id);
-        $environment = substr($voucher->xml, -30, 1);
+        $shop = Shop::find($id);
+        $environment = substr($shop->xml_retention, -30, 1);
 
         switch ((int) $environment) {
             case 1:
@@ -29,7 +29,7 @@ class WSSriController
 
         $soapClientReceipt = new \SoapClient($wsdlReceipt, $options);
         $paramenters = new \stdClass();
-        $paramenters->xml = Storage::get($voucher->xml);
+        $paramenters->xml = Storage::get($shop->xml_retention);
 
         try {
             $result = new \stdClass();
@@ -40,12 +40,12 @@ class WSSriController
                 return;
             }
 
-            $this->moveXmlFile($voucher, VoucherStates::SENDED);
+            $this->moveXmlFile($shop, VoucherStates::SENDED);
 
             switch ($result->RespuestaRecepcionComprobante->estado) {
                 case VoucherStates::RECEIVED:
-                    $this->moveXmlFile($voucher, VoucherStates::RECEIVED);
-                    $this->authorizevoucher($voucher_id);
+                    $this->moveXmlFile($shop, VoucherStates::RECEIVED);
+                    $this->authorize($id);
                     break;
                 case VoucherStates::RETURNED:
                     $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes;
@@ -56,8 +56,8 @@ class WSSriController
                         $message .= ' informacionAdicional : ' . $mensajes['mensaje']['informacionAdicional'];
                     }
 
-                    $voucher->extra_detail = $message;
-                    $this->moveXmlFile($voucher, VoucherStates::RETURNED);
+                    $shop->extra_detail_retention = $message;
+                    $this->moveXmlFile($shop, VoucherStates::RETURNED);
                     break;
             }
         } catch (\Exception $e) {
@@ -70,12 +70,12 @@ class WSSriController
         }
     }
 
-    public function authorizevoucher($voucher_id)
+    public function authorize($id)
     {
-        $voucher = Voucher::find($voucher_id);
-        $environment = substr($voucher->xml, -30, 1);
+        $shop = Shop::find($id);
+        $environment = substr($shop->xml_retention, -30, 1);
 
-        if ($voucher->state === VoucherStates::AUTHORIZED || $voucher->state === VoucherStates::CANCELED) {
+        if ($shop->state_retencion === VoucherStates::AUTHORIZED || $shop->state_retencion === VoucherStates::CANCELED) {
             return;
         }
         switch ((int) $environment) {
@@ -100,7 +100,7 @@ class WSSriController
 
         // Parameters SOAP
         $user_param = array(
-            'claveAccesoComprobante' => substr(substr($voucher->xml, -53), 0, 49)
+            'claveAccesoComprobante' => substr(substr($shop->xml_retention, -53), 0, 49)
         );
 
         try {
@@ -115,7 +115,7 @@ class WSSriController
 
             switch ($autorizacion->estado) {
                 case VoucherStates::AUTHORIZED:
-                    $toPath = str_replace($voucher->state, VoucherStates::AUTHORIZED, $voucher->xml);
+                    $toPath = str_replace($shop->state_retencion, VoucherStates::AUTHORIZED, $shop->xml_retention);
                     $folder = substr($toPath, 0, strpos($toPath, VoucherStates::AUTHORIZED)) . VoucherStates::AUTHORIZED;
 
                     if (!file_exists(Storage::path($folder))) {
@@ -123,13 +123,12 @@ class WSSriController
                     }
 
                     Storage::put($toPath, $this->xmlautorized($autorizacion));
-                    $voucher->xml = $toPath;
-                    $voucher->state = VoucherStates::AUTHORIZED;
-                    $voucher->extra_detail = NULL;
+                    $shop->xml_retention = $toPath;
+                    $shop->state_retencion = VoucherStates::AUTHORIZED;
                     $authorizationDate = \DateTime::createFromFormat('Y-m-d\TH:i:sP', $autorizacion->fechaAutorizacion);
-                    $voucher->autorized = $authorizationDate->format('Y-m-d H:i:s');
-                    $voucher->authorization = $autorizacion->numeroAutorizacion;
-                    $voucher->save();
+                    $shop->autorized_retention = $authorizationDate->format('Y-m-d H:i:s');
+                    $shop->authorization_retention = $autorizacion->numeroAutorizacion;
+                    $shop->save();
                     break;
                 case VoucherStates::REJECTED:
                     $mensajes = json_decode(json_encode($autorizacion->mensajes), true);
@@ -139,19 +138,16 @@ class WSSriController
                         $message .= '. informacionAdicional : ' . $mensajes['mensaje']['informacionAdicional'];
                     }
 
-                    $toPath = str_replace($voucher->state, VoucherStates::REJECTED, $voucher->xml);
+                    $toPath = str_replace($shop->state_retencion, VoucherStates::REJECTED, $shop->xml_retention);
                     Storage::put($toPath, $autorizacion);
-                    $voucher->xml = $toPath;
-                    $voucher->state = VoucherStates::REJECTED;
-                    $voucher->extra_detail = $message;
-                    $authorizationDate = \DateTime::createFromFormat('Y-m-d\TH:i:sP', $autorizacion->fechaAutorizacion);
-                    $voucher->autorized = $authorizationDate->format('Y-m-d H:i:s');
-                    $voucher->save();
+                    $shop->xml_retention = $toPath;
+                    $shop->state_retencion = VoucherStates::REJECTED;
+                    $shop->extra_detail_retention = $message;
+                    $shop->save();
                     break;
                 default:
-                    $voucher->state = VoucherStates::IN_PROCESS;
-                    $voucher->extra_detail = NULL;
-                    $voucher->save();
+                    $shop->state_retencion = VoucherStates::IN_PROCESS;
+                    $shop->save();
                     break;
             }
         } catch (\Exception $e) {
@@ -195,18 +191,18 @@ class WSSriController
         return $dom->saveXML();
     }
 
-    private function moveXmlFile($voucher, $newState)
+    private function moveXmlFile($shop, $newState)
     {
-        $xml = str_replace($voucher->state, $newState, $voucher->xml);
+        $xml = str_replace($shop->state_retencion, $newState, $shop->xml_retention);
         $folder = substr($xml, 0, strpos($xml, $newState)) . $newState;
 
         if (!file_exists(Storage::path($folder))) {
             Storage::makeDirectory($folder);
         }
 
-        Storage::move($voucher->xml, $xml);
-        $voucher->state = $newState;
-        $voucher->xml = $xml;
-        $voucher->save();
+        Storage::move($shop->xml_retention, $xml);
+        $shop->state_retencion = $newState;
+        $shop->xml_retention = $xml;
+        $shop->save();
     }
 }

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Shop extends Model
 {
-    //
     protected $fillable = [
         'branch_id', 'date', 'description', 'sub_total',
         'serie', 'provider_id', 'doc_realeted',
@@ -14,15 +13,15 @@ class Shop extends Model
         'base12', 'iva', 'discount', 'total',
         'voucher_type', 'paid',
 
-        // Electronico
+        // Electrónico
         'state', 'autorized', 'authorization',
         'iva_retention', 'rent_retention', 'xml',
         'extra_detail',
 
-        // Retencion
+        // Retención
         'serie_retencion', 'date_retention',
 
-        // Retencion electronica
+        // Retención electrónica
         'state_retencion', 'autorized_retention',
         'authorization_retention', 'xml_retention',
         'extra_detail_retention'
@@ -31,5 +30,10 @@ class Shop extends Model
     public function shopitems()
     {
         return $this->hasMany(ShopItem::class);
+    }
+
+    public function shopretentionitems()
+    {
+        return $this->hasMany(ShopRetentionItem::class);
     }
 }

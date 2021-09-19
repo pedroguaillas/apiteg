@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use App\Movement;
 use App\Company;
 use App\Order;
 use App\OrderItem;
@@ -12,7 +11,7 @@ use App\StaticClasses\VoucherStates;
 
 class OrderXmlController extends Controller
 {
-    public function downloadXml($id)
+    public function download($id)
     {
         $order = Order::findOrFail($id);
 
@@ -100,7 +99,7 @@ class OrderXmlController extends Controller
                 $order->xml = $rootfile . '/FIRMADO/' . $file;
                 $order->state = 'FIRMADO';
                 $order->save();
-                (new WSSriOrderController())->sendOrder($order->id);
+                (new WSSriOrderController())->send($order->id);
             }
         }
     }
@@ -126,7 +125,7 @@ class OrderXmlController extends Controller
 
         // Only Credit Note Start ................................
 
-        $invoice = Movement::select('date', 'serie')
+        $invoice = Order::select('date', 'serie')
             ->join('vouchers', 'vouchers.movement_id', 'movements.id')
             ->where('movements.id', $order->doc_realeted)
             ->first();

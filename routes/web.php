@@ -74,10 +74,6 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->post('accountentries', 'AccountEntryController@store');
     // End Account Entries .....
 
-    //Categories
-    $router->get('categories', 'CategoryController@index');
-    $router->post('categories', 'CategoryController@store');
-
     //Products
     $router->get('products', 'ProductController@index');
     $router->get('productscreate', 'ProductController@create');
@@ -96,50 +92,21 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
     //Order Xml
     $router->get('orders/xml/{id}', 'OrderXmlController@xml');
-    $router->get('orders/download/{id}', 'OrderXmlController@downloadXml');
-    $router->get('orders/sendsri/{id}', 'WSSriOrderController@sendOrder');
-    $router->get('orders/authorizesri/{id}', 'WSSriOrderController@authorizeOrder');
+    $router->get('orders/download/{id}', 'OrderXmlController@download');
+    $router->get('orders/sendsri/{id}', 'WSSriOrderController@send');
+    $router->get('orders/authorize/{id}', 'WSSriOrderController@authorize');
 
     //shops
     $router->get('shops', 'ShopController@index');
     $router->get('shops/create', 'ShopController@create');
     $router->post('shops', 'ShopController@store');
+    $router->get('shops/{id}', 'ShopController@show');
 
-    //Movements
-    $router->get('movements', 'MovementController@index');
-    $router->get('movementscreate', 'MovementController@create');
-    $router->post('movements', 'MovementController@store');
-    $router->get('movements/{id}', 'MovementController@show');
-
-    //Vouchers
-    $router->get('vouchers', 'VoucherController@index');
-    $router->get('voucherscreate', 'VoucherController@create'); //Used create new voucher
-    $router->post('vouchers', 'VoucherController@store');
-    $router->get('vouchers/{id}', 'VoucherController@show');
-    $router->get('vouchersbycontact/{contact_id}', 'VoucherController@showByContact');
-    $router->get('voucherspdf/{id}', 'VoucherController@showPdf');
-
-    // return xml
-    $router->get('xml/{id}', 'XmlVoucherController@xml');
-    $router->get('xmldownload/{id}', 'XmlVoucherController@downloadXml');
-    $router->get('xml_retention/{id}', 'XmlVoucherController@xmlRetention');
-
-    // Azur
-    $router->get('azur/{id}', 'AzurApiController@index');
-
-    // Datil
-    $router->get('datil/{id}', 'DatilApiController@index');
-
-    $router->get('sendsri/{id}', 'WSSriController@sendVoucher');
-    $router->get('authorizevoucher/{id}', 'WSSriController@authorizevoucher');
-
-    //Contacts
-    $router->get('contacts', 'ContactController@index');
-    $router->get('contactscreate', 'ContactController@create');
-    $router->post('contacts', 'ContactController@store');
-    $router->get('contact/{id}', 'ContactController@show');
-    $router->post('contacts_import', 'ContactController@import');
-    $router->put('contact/{id}', 'ContactController@update');
+    //Retention Xml
+    $router->get('retentions/xml/{id}', 'RetentionXmlController@xml');
+    $router->get('retentions/download/{id}', 'OrderXmlController@downloadXml');
+    $router->get('retentions/sendsri/{id}', 'WSSriRetentionController@sendSri');
+    $router->get('retentions/authorize/{id}', 'WSSriRetentionController@authorize');
 
     //Customers
     $router->get('customers', 'CustomerController@index');

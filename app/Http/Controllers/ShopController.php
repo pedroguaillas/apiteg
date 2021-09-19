@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Company;
+use App\Product;
 use App\Shop;
 use App\Tax;
 use Illuminate\Http\Request;
@@ -56,7 +57,7 @@ class ShopController extends Controller
 
         $set_purchase = Shop::select('serie')
             ->where([
-                ['branch_id', $branch_id], // De la sucursal especifico
+                ['branch_id', $branch_id], // De la sucursal específico
                 ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 ['voucher_type', 3] // 3-Liquidacion-de-compra
             ])->orderBy('created_at', 'desc') // Para traer el ultimo
@@ -64,7 +65,7 @@ class ShopController extends Controller
 
         $retention = Shop::select('serie_retencion AS serie')
             ->where([
-                ['branch_id', $branch_id], // De la sucursal especifico
+                ['branch_id', $branch_id], // De la sucursal específico
                 ['state_retencion', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 // ['voucher_type', 3] // 3-Liquidacion-de-compra
             ])->orderBy('created_at', 'desc') // Para traer el ultimo
@@ -106,46 +107,36 @@ class ShopController extends Controller
      */
     public function store(Request $request)
     {
-        $shop = new Shop;
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
 
-        $shop->serie = $request->get('serie');
+        $except = ['taxes', 'pay_methods', 'app_retention', 'send'];
 
-        $provider = $request->get('provider');
-        $shop->provider_id = $provider['id'];
-        $shop->date = $request->get('date');
-        $shop->expiration_date = $request->get('expiration_date');
-        $shop->no_iva = $request->get('no_iva');
-        $shop->base0 = $request->get('base0');
-        $shop->base12 = $request->get('base12');
-        $shop->iva = $request->get('iva');
-        $shop->sub_total = $request->get('sub_total');
-        $shop->discount = $request->get('discount');
-        $shop->total = $request->get('total');
-        $shop->voucher_type = $request->get('voucher_type');
-        $shop->pay_method = $request->get('pay_method');
-        $shop->notes = $request->get('notes');
-        $shop->paid = $request->get('paid');
+        if ($shop = $branch->shops()->create($request->except($except))) {
 
-        if ($shop->save()) {
+            if ($shop->voucher_type < 4 && $request->get('app_retention') && count($request->get('taxes')) > 0) {
 
-            $products = $request->get('products');
+                $taxes = $request->get('taxes');
+                $array = [];
 
-            $shopitems = array();
+                foreach ($taxes as $tax) {
+                    $array[] = [
+                        'code' => $tax['code'],
+                        'tax_code' => $tax['tax_code'],
+                        'base' => $tax['base'],
+                        'porcentage' => $tax['porcentage'],
+                        'value' => $tax['value']
+                    ];
+                }
 
-            foreach ($products as $product) {
-                array_push(
-                    $shopitems,
-                    [
-                        'product_id' => $product["id"],
-                        'price' => $product["price1"],
-                        'quantity' => $product["quantity"]
-                    ]
-                );
-                // $prod = Product::find($product["id"]);
-                // $prod->stock = $prod->stock + $product["quantity"];
-                // $prod->save();
+                $shop->shopretentionitems()->createMany($array);
+
+                // if ($request->get('send')) {
+                //     (new OrderXmlController())->xml($order->id);
+                // }
             }
-            $shop->shopitems()->createMany($shopitems);
         }
     }
 
@@ -155,9 +146,29 @@ class ShopController extends Controller
      * @param  \App\Shop  $shop
      * @return \Illuminate\Http\Response
      */
-    public function show(Shop $shop)
+    public function show($id)
     {
-        //
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $shop = Shop::findOrFail($id);
+
+        $shopitems = Product::join('shop_items AS si', 'si.product_id', 'products.id')
+            ->select('products.iva', 'si.*')
+            ->where('shop_id', $shop->id)
+            ->get();
+
+        return response()->json([
+            'products' => $branch->products,
+            'providers' => $branch->providers,
+            'shop' => $shop,
+            'shopitems' => $shopitems,
+            'shopretentionitems' => $shop->shopretentionitems,
+            'taxes' => Tax::all(),
+            'series' => $this->getSeries($branch)
+        ]);
     }
 
     /**
@@ -166,7 +177,7 @@ class ShopController extends Controller
      * @param  \App\Shop  $shop
      * @return \Illuminate\Http\Response
      */
-    public function edit(Shop $shop)
+    public function edit($id)
     {
         //
     }
