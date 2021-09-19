@@ -104,7 +104,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
     //Retention Xml
     $router->get('retentions/xml/{id}', 'RetentionXmlController@xml');
-    $router->get('retentions/download/{id}', 'OrderXmlController@downloadXml');
+    $router->get('retentions/download/{id}', 'RetentionXmlController@download');
     $router->get('retentions/sendsri/{id}', 'WSSriRetentionController@sendSri');
     $router->get('retentions/authorize/{id}', 'WSSriRetentionController@authorize');
 

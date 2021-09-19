@@ -133,9 +133,9 @@ class ShopController extends Controller
 
                 $shop->shopretentionitems()->createMany($array);
 
-                // if ($request->get('send')) {
-                //     (new OrderXmlController())->xml($order->id);
-                // }
+                if ($request->get('send')) {
+                    (new RetentionXmlController())->xml($shop->id);
+                }
             }
         }
     }

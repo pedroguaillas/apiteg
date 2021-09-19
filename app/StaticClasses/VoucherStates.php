@@ -6,6 +6,7 @@ class VoucherStates
 {
     const DRAFT         = 'BORRADOR';
     const SAVED         = 'CREADO';
+    const SIGNED        = 'FIRMADO';
     const ACCEPTED      = 'ACEPTADO';
     const REJECTED      = 'RECHAZADO';
     const SENDED        = 'ENVIADO';

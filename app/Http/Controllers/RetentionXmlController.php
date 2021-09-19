@@ -10,7 +10,7 @@ use App\Shop;
 
 class RetentionXmlController extends Controller
 {
-    public function downloadXml($id)
+    public function download($id)
     {
         $shop = shop::findOrFail($id);
 
@@ -67,8 +67,8 @@ class RetentionXmlController extends Controller
             $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
             // Si no existe la FIRMADO entonces Crear
-            if (!file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO'))) {
-                Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO');
+            if (!file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED))) {
+                Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED);
             }
 
             // $rootfile = Storage::path($rootfile);
@@ -80,9 +80,9 @@ class RetentionXmlController extends Controller
             $variable = system($java_firma);
 
             // Si se creo el archivo FIRMADO entonces guardar estado FIRMADO Y el nuevo path XML
-            if (file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO' . DIRECTORY_SEPARATOR . $file))) {
-                $shop->xml_retention = $rootfile . '/FIRMADO/' . $file;
-                $shop->state_retencion = 'FIRMADO';
+            if (file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED . DIRECTORY_SEPARATOR . $file))) {
+                $shop->xml_retention = $rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED . DIRECTORY_SEPARATOR . $file;
+                $shop->state_retencion = VoucherStates::SIGNED;
                 $shop->save();
                 (new WSSriRetentionController())->sendsri($shop->id);
             }
