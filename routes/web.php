@@ -102,6 +102,9 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->post('shops', 'ShopController@store');
     $router->get('shops/{id}', 'ShopController@show');
 
+    //shops Import from txt
+    $router->post('shops/import', 'ShopImportController@import');
+
     //Retention Pdf
     $router->get('retentions/pdf/{id}', 'ShopController@showPdfRetention');
 
