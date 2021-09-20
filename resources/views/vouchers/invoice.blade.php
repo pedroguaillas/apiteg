@@ -5,11 +5,11 @@
     <table style="width: 725px;" class="table table-sm">
         <tbody class="widthboder">
             <tr>
-                <td class="relleno">Razón Social / Nombres Y Apellidos: {{ $movement->company }}</td>
-                <td class="align-middle">Identificación: {{ $movement->ruc }}</td>
+                <td class="relleno">Razón Social / Nombres Y Apellidos: {{ $movement->name }}</td>
+                <td class="align-middle">Identificación: {{ $movement->identication }}</td>
             </tr>
             <tr>
-                <td class="relleno">Fecha de Emisión: {{ $movement->date }}</td>
+                <td class="relleno">Fecha de Emisión: {{ date( "d/m/Y", strtotime( $movement->date ) ) }}</td>
                 <!-- <td class="align-middle">Guía de Remisión: GUÍA DE REMISIÓN</td> -->
             </tr>
             <tr>

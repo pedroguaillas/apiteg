@@ -82,8 +82,8 @@ class OrderXmlController extends Controller
             $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
             // Si no existe la FIRMADO entonces Crear
-            if (!file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO'))) {
-                Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO');
+            if (!file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED))) {
+                Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED);
             }
 
             // $rootfile = Storage::path($rootfile);
@@ -95,9 +95,9 @@ class OrderXmlController extends Controller
             $variable = system($java_firma);
 
             // Si se creo el archivo FIRMADO entonces guardar estado FIRMADO Y el nuevo path XML
-            if (file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . 'FIRMADO' . DIRECTORY_SEPARATOR . $file))) {
-                $order->xml = $rootfile . '/FIRMADO/' . $file;
-                $order->state = 'FIRMADO';
+            if (file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED . DIRECTORY_SEPARATOR . $file))) {
+                $order->xml = $rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED . DIRECTORY_SEPARATOR . $file;
+                $order->state = VoucherStates::SIGNED;
                 $order->save();
                 (new WSSriOrderController())->send($order->id);
             }

@@ -124,7 +124,7 @@ class RetentionXmlController extends Controller
             $string .= '<baseImponible>' . number_format($item->base, $company->decimal) . '</baseImponible>';
             $string .= "<porcentajeRetener>$item->porcentage</porcentajeRetener>";
             $string .= '<valorRetenido>' . number_format($item->value, $company->decimal) . '</valorRetenido>';
-            $string .= "<codDocSustento>01</codDocSustento>"; //01 Facturas
+            $string .= "<codDocSustento>" . str_pad($shop->voucher_type, 2, '0', STR_PAD_LEFT) . "</codDocSustento>";
             $string .= "<numDocSustento>" . str_replace('-', '', $shop->serie) . "</numDocSustento>";
             $string .= "<fechaEmisionDocSustento>" . (new \DateTime($shop->date))->format('d/m/Y') . "</fechaEmisionDocSustento>";
             $string .= "</impuesto>";

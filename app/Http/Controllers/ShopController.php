@@ -8,6 +8,7 @@ use App\Shop;
 use App\Tax;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class ShopController extends Controller
 {
@@ -169,6 +170,34 @@ class ShopController extends Controller
             'taxes' => Tax::all(),
             'series' => $this->getSeries($branch)
         ]);
+    }
+
+    public function showPdfRetention($id)
+    {
+        $movement = Shop::join('providers AS p', 'shops.provider_id', 'p.id')
+            ->select(
+                'shops.date AS date_v',
+                'shops.date_retention AS date',
+                'shops.serie_retencion AS serie',
+                'shops.autorized_retention AS autorized',
+                'shops.xml_retention AS xml',
+                'shops.authorization_retention AS authorization',
+                'p.*'
+            )
+            ->where('shops.id', $id)
+            ->first();
+
+        $movement->voucher_type = 7;
+
+        $retention_items = $movement->shopretentionitems;
+
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+
+        $pdf = PDF::loadView('vouchers/retention', compact('movement', 'company', 'retention_items'));
+
+        return $pdf->stream();
     }
 
     /**

@@ -102,11 +102,15 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->post('shops', 'ShopController@store');
     $router->get('shops/{id}', 'ShopController@show');
 
+    //Retention Pdf
+    $router->get('retentions/pdf/{id}', 'ShopController@showPdfRetention');
+
     //Retention Xml
     $router->get('retentions/xml/{id}', 'RetentionXmlController@xml');
     $router->get('retentions/download/{id}', 'RetentionXmlController@download');
     $router->get('retentions/sendsri/{id}', 'WSSriRetentionController@sendSri');
     $router->get('retentions/authorize/{id}', 'WSSriRetentionController@authorize');
+
 
     //Customers
     $router->get('customers', 'CustomerController@index');

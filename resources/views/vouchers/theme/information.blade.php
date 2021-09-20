@@ -25,7 +25,7 @@
                     @break
 
                     @case(7)
-                    RETENCION
+                    COMPROBANTE DE RETENCIÓN
                     @break
 
                     @default
@@ -45,7 +45,9 @@
             </tr>
             <tr>
                 <td class="relleno">FECHA Y HORA DE AUTORIZACIÓN: </td>
-                <td class="align-middle">{{ $movement->autorized }}</td>
+                <td class="align-middle">
+                    {{ $movement->autorized !== null ? date( "d/m/Y H:i:s.000", strtotime( $movement->autorized ) ) : null }}
+                </td>
             </tr>
             <tr>
                 <td class="relleno">AMBIENTE:</td>
@@ -61,11 +63,11 @@
             <tr>
                 <td class="relleno" colspan="2">{{ substr($movement->xml, -53, 49) }}</td>
             </tr>
-            <tr>
+            <!-- <tr>
                 <td class="relleno" colspan="2">
                     Código de barra
                 </td>
-            </tr>
+            </tr> -->
         </tbody>
     </table>
 </div>
