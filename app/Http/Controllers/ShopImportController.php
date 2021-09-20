@@ -89,7 +89,7 @@ class ShopImportController extends Controller
         if (count($providers)) {
             $provider = $providers->first();
         } else {
-            $provider = Provider::create([
+            $provider = $branch->providers()->create([
                 'identication' => $dom->getElementsByTagName('ruc')->item(0)->textContent,
                 'type_identification' => 'ruc',
                 'name' => $dom->getElementsByTagName('razonSocial')->item(0)->textContent,
