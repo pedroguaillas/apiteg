@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Company;
 use App\Product;
 use App\Shop;
+use App\ShopRetentionItem;
 use App\Tax;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -161,6 +162,9 @@ class ShopController extends Controller
             ->where('shop_id', $shop->id)
             ->get();
 
+        $series = $this->getSeries($branch);
+        $shop->serie_retencion = ($shop->serie_retencion !== null) ? $shop->serie_retencion : $series['retention'];
+
         return response()->json([
             'products' => $branch->products,
             'providers' => $branch->providers,
@@ -168,7 +172,7 @@ class ShopController extends Controller
             'shopitems' => $shopitems,
             'shopretentionitems' => $shop->shopretentionitems,
             'taxes' => Tax::all(),
-            'series' => $this->getSeries($branch)
+            'series' => $series
         ]);
     }
 
@@ -219,9 +223,38 @@ class ShopController extends Controller
      * @param  \App\Shop  $shop
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Shop $shop)
+    public function update(Request $request, $id)
     {
-        //
+        $except = ['id', 'taxes', 'pay_methods', 'app_retention', 'send'];
+
+        $shop = Shop::find($id);
+
+        if ($shop->update($request->except($except))) {
+
+            if ($shop->voucher_type < 4 && $request->get('app_retention') && count($request->get('taxes')) > 0) {
+
+                $taxes = $request->get('taxes');
+                $array = [];
+
+                foreach ($taxes as $tax) {
+                    $array[] = [
+                        'code' => $tax['code'],
+                        'tax_code' => $tax['tax_code'],
+                        'base' => $tax['base'],
+                        'porcentage' => $tax['porcentage'],
+                        'value' => $tax['value']
+                    ];
+                }
+
+                ShopRetentionItem::where('shop_id', $shop->id)->delete();
+
+                $shop->shopretentionitems()->createMany($array);
+
+                if ($request->get('send')) {
+                    (new RetentionXmlController())->xml($shop->id);
+                }
+            }
+        }
     }
 
     /**

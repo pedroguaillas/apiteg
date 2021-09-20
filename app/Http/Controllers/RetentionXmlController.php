@@ -84,6 +84,7 @@ class RetentionXmlController extends Controller
                 $shop->xml_retention = $rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED . DIRECTORY_SEPARATOR . $file;
                 $shop->state_retencion = VoucherStates::SIGNED;
                 $shop->save();
+
                 (new WSSriRetentionController())->sendSri($shop->id);
             }
         }
