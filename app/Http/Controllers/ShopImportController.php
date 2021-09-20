@@ -98,8 +98,10 @@ class ShopImportController extends Controller
             ]);
         }
 
+        $fecha = date_create_from_format('d/m/Y', $dom->getElementsByTagName('fechaEmision')->item(0)->textContent);
+
         $shop = [
-            'date' => $dom->getElementsByTagName('fechaEmision')->item(0)->textContent,
+            'date' => date_format($fecha, 'Y-m-d'),
             'totalSinImpuestos' => $dom->getElementsByTagName('totalDescuento')->item(0)->textContent,
             'serie' => $dom->getElementsByTagName('estab')->item(0)->textContent . '-' . $dom->getElementsByTagName('ptoEmi')->item(0)->textContent . '-' . $dom->getElementsByTagName('secuencial')->item(0)->textContent,
             'provider_id' => $provider->id,
