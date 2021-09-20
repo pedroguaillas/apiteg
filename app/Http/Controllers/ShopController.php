@@ -177,6 +177,7 @@ class ShopController extends Controller
         $movement = Shop::join('providers AS p', 'shops.provider_id', 'p.id')
             ->select(
                 'shops.date AS date_v',
+                'shops.voucher_type AS voucher_type_v',
                 'shops.date_retention AS date',
                 'shops.serie_retencion AS serie',
                 'shops.autorized_retention AS autorized',

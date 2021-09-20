@@ -32,7 +32,7 @@
             @foreach($retention_items as $item)
             <tr>
                 <td style="padding: .1em; text-align: left;">
-                    {{ $movement->voucher_type === 1 ? 'FACTURA' : 'Liquidación en Compras' }}
+                    {{ $movement->voucher_type_v === 1 ? 'FACTURA' : 'Liquidación en Compras' }}
                 </td>
                 <td style="padding: .1em; text-align: left;">{{ str_replace('-', '', $movement->serie) }}</td>
                 <td style="padding: .1em; text-align: left;">{{ date( "d/m/Y", strtotime( $movement->date_v ) ) }}</td>
