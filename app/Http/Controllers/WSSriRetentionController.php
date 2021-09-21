@@ -207,13 +207,12 @@ class WSSriRetentionController
             Storage::makeDirectory($folder);
         }
 
-        var_dump('Creado la carpeta ' . $newState);
-
+        var_dump('From: ' . $shop->xml_retention);
+        var_dump('To: ' . $xml);
         Storage::move($shop->xml_retention, $xml);
         $shop->state_retencion = $newState;
         $shop->xml_retention = $xml;
         var_dump('Si en move Xml state: ' . $xml);
         $shop->save();
-        var_dump('FIN: FIN');
     }
 }
