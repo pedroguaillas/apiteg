@@ -13,10 +13,7 @@ class WSSriRetentionController
         $shop = Shop::find($id);
 
         if ($shop->state_retencion !== VoucherStates::SIGNED) {
-            var_dump('By not Signed');
             return;
-        } else {
-            var_dump('By yes Signed');
         }
 
         $environment = substr($shop->xml_retention, -30, 1);
@@ -45,7 +42,10 @@ class WSSriRetentionController
 
             // Verificar si la peticion llego al SRI sino abandonar el proceso
             if (!property_exists($result, 'RespuestaRecepcionComprobante')) {
+                var_dump('No enviado');
                 return;
+            } else {
+                var_dump('Si enviado');
             }
 
             $this->moveXmlFile($shop, VoucherStates::SENDED);
