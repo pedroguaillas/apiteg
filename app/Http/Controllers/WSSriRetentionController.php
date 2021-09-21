@@ -13,7 +13,10 @@ class WSSriRetentionController
         $shop = Shop::find($id);
 
         if ($shop->state_retencion !== VoucherStates::SIGNED) {
+            var_dump('By not Signed');
             return;
+        } else {
+            var_dump('By yes Signed');
         }
 
         $environment = substr($shop->xml_retention, -30, 1);
