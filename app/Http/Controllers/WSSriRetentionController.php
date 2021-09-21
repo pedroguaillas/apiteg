@@ -42,10 +42,7 @@ class WSSriRetentionController
 
             // Verificar si la peticion llego al SRI sino abandonar el proceso
             if (!property_exists($result, 'RespuestaRecepcionComprobante')) {
-                var_dump('No enviado');
                 return;
-            } else {
-                var_dump('Si enviado');
             }
 
             $this->moveXmlFile($shop, VoucherStates::SENDED);
@@ -203,6 +200,7 @@ class WSSriRetentionController
 
     private function moveXmlFile($shop, $newState)
     {
+        var_dump('Si en move Xml state: ' . $newState);
         $xml = str_replace($shop->state_retencion, $newState, $shop->xml_retention);
         $folder = substr($xml, 0, strpos($xml, $newState)) . $newState;
 
