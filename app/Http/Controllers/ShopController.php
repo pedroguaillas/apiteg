@@ -164,6 +164,7 @@ class ShopController extends Controller
 
         $series = $this->getSeries($branch);
         $shop->serie_retencion = ($shop->serie_retencion !== null) ? $shop->serie_retencion : $series['retention'];
+        $shop->date_retention = date('Y-m-d');
 
         return response()->json([
             'products' => $branch->products,

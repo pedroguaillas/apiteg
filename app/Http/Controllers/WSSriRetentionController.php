@@ -11,6 +11,11 @@ class WSSriRetentionController
     public function sendSri($id)
     {
         $shop = Shop::find($id);
+
+        if ($shop->state_retencion !== VoucherStates::SIGNED) {
+            return;
+        }
+
         $environment = substr($shop->xml_retention, -30, 1);
 
         switch ((int) $environment) {
