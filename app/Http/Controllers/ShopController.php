@@ -251,7 +251,7 @@ class ShopController extends Controller
 
                 $shop->shopretentionitems()->createMany($array);
 
-                if ($request->get('send')) {
+                if ($request->get('send') && $shop->autorized_retention === null) {
                     (new RetentionXmlController())->xml($shop->id);
                 }
             }

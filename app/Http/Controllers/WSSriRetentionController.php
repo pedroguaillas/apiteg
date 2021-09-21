@@ -53,12 +53,11 @@ class WSSriRetentionController
                     $this->authorize($id);
                     break;
                 case VoucherStates::RETURNED:
-                    $mensajes = $result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes;
-                    $mensajes = json_decode(json_encode($mensajes), true);
+                    $mensajes = json_decode(json_encode($result->RespuestaRecepcionComprobante->comprobantes->comprobante->mensajes), true);
 
-                    $message = $mensajes['mensaje']['identificador'] . ' : ' . $mensajes['mensaje']['mensaje'] . '.';
+                    $message = $mensajes['mensaje']['tipo'] . ' ' . $mensajes['mensaje']['identificador'] . ' : ' . $mensajes['mensaje']['mensaje'];
                     if (array_key_exists('informacionAdicional', $mensajes['mensaje'])) {
-                        $message .= ' informacionAdicional : ' . $mensajes['mensaje']['informacionAdicional'];
+                        $message .= '. informacionAdicional : ' . $mensajes['mensaje']['informacionAdicional'];
                     }
 
                     $shop->extra_detail_retention = $message;
