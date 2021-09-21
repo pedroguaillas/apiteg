@@ -200,7 +200,6 @@ class WSSriRetentionController
 
     private function moveXmlFile($shop, $newState)
     {
-        var_dump('Si en move Xml state: ' . $newState);
         $xml = str_replace($shop->state_retencion, $newState, $shop->xml_retention);
         $folder = substr($xml, 0, strpos($xml, $newState)) . $newState;
 
@@ -208,9 +207,13 @@ class WSSriRetentionController
             Storage::makeDirectory($folder);
         }
 
+        var_dump('Creado la carpeta ' . $newState);
+
         Storage::move($shop->xml_retention, $xml);
         $shop->state_retencion = $newState;
         $shop->xml_retention = $xml;
+        var_dump('Si en move Xml state: ' . $xml);
         $shop->save();
+        var_dump('FIN: FIN');
     }
 }
