@@ -181,6 +181,7 @@ class ShopController extends Controller
     {
         $movement = Shop::join('providers AS p', 'shops.provider_id', 'p.id')
             ->select(
+                'shops.id',
                 'shops.date AS date_v',
                 'shops.voucher_type AS voucher_type_v',
                 'shops.date_retention AS date',
@@ -188,7 +189,8 @@ class ShopController extends Controller
                 'shops.autorized_retention AS autorized',
                 'shops.xml_retention AS xml',
                 'shops.authorization_retention AS authorization',
-                'p.*'
+                'p.name',
+                'p.identication'
             )
             ->where('shops.id', $id)
             ->first();
