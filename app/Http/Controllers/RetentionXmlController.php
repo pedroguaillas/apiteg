@@ -105,7 +105,6 @@ class RetentionXmlController extends Controller
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
         $string .= '<tipoIdentificacionSujetoRetenido>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionSujetoRetenido>';
-        $string .= '<parteRel>NO</parteRel>';
         $string .= '<razonSocialSujetoRetenido>' . $shop->name . '</razonSocialSujetoRetenido>';
         $string .= '<identificacionSujetoRetenido>' . $buyer_id . '</identificacionSujetoRetenido>';
         $string .= '<periodoFiscal>' . $date->format('m/Y') . '</periodoFiscal>';
