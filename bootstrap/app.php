@@ -72,7 +72,8 @@ $app->singleton('filesystem', function ($app) {
 //My midleware comunication with client React
 $app->middleware([
     //you may have other middlewares registered
-    App\Http\Middleware\CorsMiddleware::class
+    App\Http\Middleware\CorsMiddleware::class,
+    App\Http\Middleware\HttpsProtocolMiddleware::class,
 ]);
 
 $app->routeMiddleware([
