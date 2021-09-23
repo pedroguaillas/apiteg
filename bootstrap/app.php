@@ -73,7 +73,7 @@ $app->singleton('filesystem', function ($app) {
 $app->middleware([
     //you may have other middlewares registered
     App\Http\Middleware\CorsMiddleware::class,
-    App\Http\Middleware\HttpsProtocolMiddleware::class,
+    // App\Http\Middleware\HttpsProtocolMiddleware::class,
 ]);
 
 $app->routeMiddleware([
