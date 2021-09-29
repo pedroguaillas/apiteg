@@ -24,7 +24,7 @@ class WSSriOrderController
 
         $options = array(
             'connection_timeout' => 3,
-            'cache_wsdl' => WSDL_CACHE_NONE
+            // 'cache_wsdl' => WSDL_CACHE_NONE
         );
 
         $soapClientReceipt = new \SoapClient($wsdlReceipt, $options);
