@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OrderItem extends Model
+class OrderRetentionItem extends Model
 {
     protected $fillable = [
         'code', 'tax_code',

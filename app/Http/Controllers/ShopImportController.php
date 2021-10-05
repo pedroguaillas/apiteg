@@ -3,15 +3,39 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
-use App\Company;
-use App\Provider;
 use Illuminate\Http\Request;
+use App\Provider;
+use App\Company;
 
 class ShopImportController extends Controller
 {
     public function import(Request $request)
     {
         $clave_accs = $request->get('clave_accs');
+
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $newkeys = [];
+
+        foreach ($clave_accs as $clave) {
+            $enc = false;
+            $i = 0;
+            while (!$enc && $i < count($branch->shops)) {
+                if ($clave === $branch->shops[$i]->authorization) {
+                    $enc = true;
+                }
+                $i++;
+            }
+
+            if (!$enc) {
+                $newkeys[] = $clave;
+            }
+        }
+
+        $clave_accs = $newkeys;
 
         $url = "https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl";
 
@@ -110,6 +134,7 @@ class ShopImportController extends Controller
             'base12' => $b12R,
             'iva' => $b12R * .12,
             'discount' => $dom->getElementsByTagName('totalDescuento')->item(0)->textContent,
+            'ice' => $ice,
             'total' => $dom->getElementsByTagName('importeTotal')->item(0)->textContent,
             'voucher_type' => (int)$dom->getElementsByTagName('codDoc')->item(0)->textContent,
             'authorization' => $autorizacion->numeroAutorizacion,

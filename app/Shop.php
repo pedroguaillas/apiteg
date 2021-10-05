@@ -10,7 +10,7 @@ class Shop extends Model
         'branch_id', 'date', 'description', 'sub_total',
         'serie', 'provider_id', 'doc_realeted',
         'expiration_days', 'no_iva', 'base0',
-        'base12', 'iva', 'discount', 'total',
+        'base12', 'iva', 'discount', 'ice', 'total',
         'voucher_type', 'paid',
 
         // Electrónico

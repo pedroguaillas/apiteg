@@ -57,7 +57,10 @@ class ProviderController extends Controller
         $company = Company::find($level->level_id);
 
         try {
-            $company->branches->first()->providers()->create($request->all());
+            $provider = $company->branches->first()->providers()->create($request->all());
+            return response()->json([
+                'provider' => $provider
+            ]);
         } catch (\Illuminate\Database\QueryException $e) {
             $errorCode = $e->errorInfo[1];
             if ($errorCode == 1062) {
