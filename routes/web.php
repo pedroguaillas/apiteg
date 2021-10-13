@@ -38,6 +38,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
     //Companies
     $router->get('companies', 'CompanyController@index');
+    $router->post('company_update', 'CompanyController@update');
 
     // Branches
     $router->get('branches', 'BranchController@index');

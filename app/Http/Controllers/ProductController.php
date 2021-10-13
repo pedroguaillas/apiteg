@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProductResources;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\ChartAccount;
 use App\Category;
 use App\Company;
-use App\Http\Resources\ProductResources;
 use App\Product;
 use App\Unity;
 
@@ -28,9 +28,10 @@ class ProductController extends Controller
         $products = Product::leftJoin('categories', 'categories.id', 'products.category_id')
             ->leftJoin('unities', 'unities.id', 'products.unity_id')
             ->where('products.branch_id', $branch->id)
-            ->select('products.*', 'categories.category', 'unities.unity')->get();
+            ->select('products.*', 'categories.category', 'unities.unity');
 
-        return ProductResources::collection($products);
+        return ProductResources::collection($products->paginate());
+        // return ProductResources::collection($products);
     }
 
     /**
@@ -111,7 +112,10 @@ class ProductController extends Controller
             ->where('products.branch_id', $branch->id)
             ->select('products.*', 'categories.category', 'unities.unity')->get();
 
-        return response()->json(['msm' => 'Result from server', 'products' => ProductResources::collection($products)]);
+        return response()->json([
+            'msm' => 'Result from server',
+            'products' => ProductResources::collection($products)
+        ]);
     }
 
     /**

@@ -155,9 +155,58 @@ class CompanyController extends Controller
      * @param  \App\Company  $company
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Company $company)
+    public function update(Request $request)
     {
-        //
+        $company = Company::find($request->id);
+
+        // New Object constraint
+        $input = $request->except(['logo', 'cert', 'extention_cert']);
+
+        // Load logo
+        if ($request->logo !== NULL) {
+            // Load from API
+            $image = $request->file('logo');
+            $imagename = $request->ruc . '.' . $image->getClientOriginalExtension();
+            $request->file('logo')->storeAs('logos', $imagename);
+            $input['logo_dir'] = $imagename;
+        }
+
+        if ($request->cert !== NULL) {
+
+            $certname = $request->ruc . $request->extention_cert;
+
+            $request->file('cert')->storeAs('cert', $certname);
+
+            $results = array();
+            if (openssl_pkcs12_read(Storage::get('cert' . DIRECTORY_SEPARATOR . $certname), $results, $request->pass_cert)) {
+                $cert = $results['cert'];
+                openssl_x509_export($cert, $certout);
+                $data = openssl_x509_parse($certout);
+                $validFrom = \DateTime::createFromFormat('U', strval($data['validFrom_time_t']));
+                $validFrom->setTimeZone(new \DateTimeZone('America/Guayaquil'));
+                $input['sign_valid_from'] = $validFrom->format('Y/m/d H:i:s');
+                $validTo = \DateTime::createFromFormat('U', strval($data['validTo_time_t']));
+                $validTo->setTimeZone(new \DateTimeZone('America/Guayaquil'));
+                $input['sign_valid_to'] = $validTo->format('Y/m/d H:i:s');
+                $date_aux = date('Y/m/d H:i:s');
+
+                // Valid cert
+                if (!(($date_aux >= $input['sign_valid_from']) && ($date_aux <= $input['sign_valid_to']))) {
+                    return response()->json(['message' => 'EXPIRED_DIGITAL_CERT'], 403);
+                } else {
+                    $input['cert_dir'] = $certname;
+                }
+            }
+        }
+
+        $input['accounting'] = $request->accounting === 'true' ? 1 : 0;
+        $input['micro_business'] = $request->micro_business === 'true' ? 1 : 0;
+
+        if ($company->update($input)) {
+            return response()->json(['message' => 'Actualizado compañia']);
+        } else {
+            return response()->json(['message' => 'Errores desconocidos']);
+        }
     }
 
     /**

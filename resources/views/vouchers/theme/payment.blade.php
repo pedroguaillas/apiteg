@@ -8,7 +8,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>SIN UTILIZAR EL SISTEMA FINANCIERO</td>
+                <td>OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO NACIONAL</td>
                 <td style="padding-right: .5em; text-align: right;">{{ number_format($movement->total, 2) }}</td>
             </tr>
         </tbody>
