@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Company;
+use App\Http\Resources\ProviderResources;
 use App\Provider;
 
 class ProviderController extends Controller
@@ -19,9 +20,11 @@ class ProviderController extends Controller
         $auth = Auth::user();
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
-        $providers = $company->branches->first()->providers;
+        $branch = $company->branches->first();
 
-        return response()->json(['providers' => $providers]);
+        $providers = Provider::where('branch_id', $branch->id);
+
+        return ProviderResources::collection($providers->paginate());
     }
 
     /**

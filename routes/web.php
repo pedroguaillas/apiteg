@@ -101,6 +101,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('shops', 'ShopController@index');
     $router->get('shops/create', 'ShopController@create');
     $router->post('shops', 'ShopController@store');
+    $router->get('shops/duplicate/{id}', 'ShopController@duplicate');
     $router->get('shops/{id}', 'ShopController@show');
     $router->put('shops/{id}', 'ShopController@update');
 

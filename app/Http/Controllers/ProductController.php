@@ -31,7 +31,6 @@ class ProductController extends Controller
             ->select('products.*', 'categories.category', 'unities.unity');
 
         return ProductResources::collection($products->paginate());
-        // return ProductResources::collection($products);
     }
 
     /**

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Customer;
 use Illuminate\Http\Request;
 use App\Company;
+use App\Http\Resources\CustomerResources;
 
 class CustomerController extends Controller
 {
@@ -20,9 +21,11 @@ class CustomerController extends Controller
         $auth = Auth::user();
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
-        $customers = $company->branches->first()->customers;
+        $branch = $company->branches->first();
 
-        return response()->json(['customers' => $customers]);
+        $customers = Customer::where('branch_id', $branch->id);
+
+        return CustomerResources::collection($customers->paginate());
     }
 
     /**

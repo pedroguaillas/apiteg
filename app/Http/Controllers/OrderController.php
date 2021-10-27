@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Company;
+use App\Http\Resources\OrderResources;
 use Illuminate\Http\Request;
 use App\Order;
 use App\OrderItem;
@@ -27,10 +28,9 @@ class OrderController extends Controller
 
         $orders = Order::join('customers AS c', 'c.id', 'customer_id')
             ->select('orders.*', 'c.name')
-            ->where('c.branch_id', $branch->id)
-            ->get();
+            ->where('c.branch_id', $branch->id);
 
-        return response()->json(['orders' => $orders]);
+        return OrderResources::collection($orders->paginate());
     }
 
     /**

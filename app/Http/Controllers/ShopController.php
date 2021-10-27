@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Company;
+use App\Http\Resources\ShopResources;
 use App\Product;
 use App\Shop;
 use App\ShopRetentionItem;
@@ -27,10 +28,9 @@ class ShopController extends Controller
 
         $shops = Shop::join('providers AS p', 'p.id', 'provider_id')
             ->select('shops.*', 'p.name')
-            ->where('p.branch_id', $branch->id)
-            ->get();
+            ->where('p.branch_id', $branch->id);
 
-        return response()->json(['shops' => $shops]);
+        return ShopResources::collection($shops->paginate());
     }
 
     /**
@@ -139,6 +139,39 @@ class ShopController extends Controller
                     (new RetentionXmlController())->xml($shop->id);
                 }
             }
+        }
+    }
+
+    public function duplicate(int $id)
+    {
+        $shop = Shop::find($id);
+
+        $newShop = Shop::create([
+            'branch_id' => $shop->branch_id,
+            'date' => $shop->date,
+            'description' => $shop->description,
+            'sub_total' => $shop->sub_total,
+            'serie' => $shop->serie,
+            'provider_id' => $shop->provider_id,
+            'doc_realeted' => $shop->doc_realeted,
+            'expiration_days' => $shop->expiration_days,
+            'no_iva' => $shop->no_iva,
+            'base0' => $shop->base0,
+            'base12' => $shop->base12,
+            'iva' => $shop->iva,
+            'discount' => $shop->discount,
+            'ice' => $shop->ice,
+            'total' => $shop->total,
+            'voucher_type' => $shop->voucher_type,
+            'paid' => $shop->paid,
+            'iva_retention' => $shop->iva_retention,
+            'rent_retention' => $shop->rent_retention
+        ]);
+
+        if ($newShop) {
+            return $this->index();
+        } else {
+            return response()->json(['msm' => 'No Duplicado']);
         }
     }
 
