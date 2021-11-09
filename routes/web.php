@@ -105,6 +105,9 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('shops/{id}', 'ShopController@show');
     $router->put('shops/{id}', 'ShopController@update');
 
+    // Liquidacion compra
+    $router->get('shops/{id}/xml', 'SettlementOnPurchaseXmlController@xml');
+
     //shops Import from txt
     $router->post('shops/import', 'ShopImportController@import');
 
@@ -116,7 +119,6 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('retentions/download/{id}', 'RetentionXmlController@download');
     $router->get('retentions/sendsri/{id}', 'WSSriRetentionController@sendSri');
     $router->get('retentions/authorize/{id}', 'WSSriRetentionController@authorize');
-
 
     //Customers
     $router->get('customers', 'CustomerController@index');

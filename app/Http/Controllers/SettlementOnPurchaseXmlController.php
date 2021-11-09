@@ -5,18 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Company;
-use App\Order;
-use App\OrderItem;
+use App\Shop;
+use App\ShopItem;
 use App\StaticClasses\VoucherStates;
 
-class OrderXmlController extends Controller
+class SettlementOnPurchaseXmlController extends Controller
 {
     public function download($id)
     {
-        $order = Order::findOrFail($id);
+        $shop = Shop::findOrFail($id);
 
         return response()->json([
-            'xml' => base64_encode(Storage::get($order->xml))
+            'xml' => base64_encode(Storage::get($shop->xml))
         ]);
     }
 
@@ -26,31 +26,21 @@ class OrderXmlController extends Controller
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
 
-        $order = Order::join('customers AS c', 'c.id', 'orders.customer_id')
-            ->select('c.identication', 'c.name', 'c.address', 'c.phone', 'c.email', 'orders.*')
-            ->where('orders.id', $id)
+        $shop = Shop::join('providers AS p', 'p.id', 'shops.provider_id')
+            ->select('p.identication', 'p.name', 'p.address', 'p.phone', 'p.email', 'shops.*')
+            ->where('shops.id', $id)
             ->first();
 
-        $order_items = OrderItem::join('products AS p', 'p.id', 'order_items.product_id')
-            ->where('order_id', $id)
+        $shop_items = ShopItem::join('products AS p', 'p.id', 'shop_items.product_id')
+            ->where('shop_id', $id)
             ->get();
 
         $str_xml_voucher = null;
 
-        switch ($order->voucher_type) {
-            case 1:
-                $str_xml_voucher = $this->invoice($order, $company, $order_items);
-                break;
-                // case 4:
-                //     $str_xml_voucher = $this->creditNote($order, $company, $order_items);
-                //     break;
-                // case 5:
-                //     // Nota de credito generar xml
-                //     $str_xml_voucher = $this->creditNote($order, $company, $order_items);
-                //     break;
+        if ((int)$shop->voucher_type === 3) {
+            $str_xml_voucher = $this->purchasesettlement($shop, $company, $shop_items);
+            $this->sign($company, $shop, $str_xml_voucher);
         }
-
-        $this->sign($company, $order, $str_xml_voucher);
     }
 
     private function sign($company, $order, $str_xml_voucher)
@@ -81,7 +71,7 @@ class OrderXmlController extends Controller
 
             $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
-            // Si no existe la carpeta FIRMADO entonces Crear
+            // Si no existe la capeta FIRMADO entonces Crear
             if (!file_exists(Storage::path($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED))) {
                 Storage::makeDirectory($rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED);
             }
@@ -104,43 +94,32 @@ class OrderXmlController extends Controller
         }
     }
 
-    private function creditNote($order, $company, $order_items)
+    private function purchasesettlement($sale, $company, $sale_items)
     {
-        $buyer_id = strlen($order->ruc) ? $order->ruc : $order->identication_card;
+        $buyer_id = $sale->identication;
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
-        $string .= '<notaCredito id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
+        $string .= '<liquidacionCompra id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
 
-        $string .= $this->infoTributaria($company, $order);
+        $string .= $this->infoTributaria($company, $sale);
 
-        $string .= '<infoNotaCredito>';
+        $string .= '<infoLiquidacionCompra>';
 
-        $date = new \DateTime($order->date);
+        $date = new \DateTime($sale->date);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
+        // $string .= '<dirEstablecimiento>null</dirEstablecimiento>';
+        $string .= $company->special !== null ? '<contribuyenteEspecial>' . $company->special . '</contribuyenteEspecial>' : null;
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
-        $string .= '<tipoIdentificacionComprador>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionComprador>';
-        $string .= '<razonSocialComprador>' . $order->company . '</razonSocialComprador>';
-        $string .= '<identificacionComprador>' . $buyer_id . '</identificacionComprador>';
-        $string .= '<direccionComprador>' . $order->address . '</direccionComprador>';
-
-        // Only Credit Note Start ................................
-
-        $invoice = Order::select('date', 'serie')
-            ->join('vouchers', 'vouchers.movement_id', 'movements.id')
-            ->where('movements.id', $order->doc_realeted)
-            ->first();
-
-        $string .= '<codDocModificado>01</codDocModificado>';
-        $string .= "<numDocModificado>$invoice->serie</numDocModificado>";
-        $string .= "<fechaEmisionDocSustento>$invoice->date</fechaEmisionDocSustento>";
-        // Only Credit Note End ..................................
-
-        $string .= '<totalSinImpuestos>' . $order->sub_total . '</totalSinImpuestos>';
-        // $string .= '<totalDescuento>' . $order->discount . '</totalDescuento>';
+        $string .= '<tipoIdentificacionProveedor>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionProveedor>';
+        $string .= '<razonSocialProveedor>' . $sale->name . '</razonSocialProveedor>';
+        $string .= '<identificacionProveedor>' . $buyer_id . '</identificacionProveedor>';
+        // $string .= '<direccionProveedor>' . $sale->address . '</direccionProveedor>';
+        $string .= '<totalSinImpuestos>' . $sale->sub_total . '</totalSinImpuestos>';
+        $string .= '<totalDescuento>' . $sale->discount . '</totalDescuento>';
 
         // Aplied only tax to IVA, NOT aplied to IRBPNR % Imp. al Cons Esp, require add
         $string .= '<totalConImpuestos>';
-        foreach ($this->grupingTaxes($order_items) as $tax) {
+        foreach ($this->grupingTaxes($sale_items) as $tax) {
             $string .= "<totalImpuesto>";
             $string .= "<codigo>2</codigo>";    // Aplied only tax to IVA
             $string .= "<codigoPorcentaje>" . $tax->percentageCode . "</codigoPorcentaje>";
@@ -151,22 +130,21 @@ class OrderXmlController extends Controller
         }
         $string .= '</totalConImpuestos>';
 
-        $string .= '<propina>0</propina>';
-        $string .= '<importeTotal>' . round($order->total, 2) . '</importeTotal>';
+        $string .= '<importeTotal>' . round($sale->total, 2) . '</importeTotal>';
         $string .= '<moneda>DOLAR</moneda>';
 
         $string .= '<pagos>';
         $string .= '<pago>';
-        $string .= '<formaPago>01</formaPago>';
-        $string .= '<total>' . $order->total . '</total>';
+        $string .= '<formaPago>20</formaPago>';
+        $string .= '<total>' . $sale->total . '</total>';
+        $string .= '<plazo>' . $sale->total . '</plazo>';
         $string .= '</pago>';
         $string .= '</pagos>';
 
-        $string .= '</infoNotaCredito>';
+        $string .= '</infoLiquidacionCompra>';
 
         $string .= '<detalles>';
-        foreach ($order_items as $detail) {
-            // $string .= $detail->__toXml();
+        foreach ($sale_items as $detail) {
             $sub_total = $detail->quantity * $detail->price;
             $discount = round($sub_total * $detail->discount * .01, 2);
             $total = $sub_total - $discount;
@@ -180,7 +158,7 @@ class OrderXmlController extends Controller
             $string .= "<cantidad>" . round($detail->quantity, $company->decimal) . "</cantidad>";
             $string .= "<precioUnitario>" . round($detail->price, $company->decimal) . "</precioUnitario>";
             $string .= "<descuento>" . $detail->discount . "</descuento>";
-            $string .= "<precioTotalSinImpuesto>" . round($sub_total, 2) . "</precioTotalSinImpuesto>";
+            $string .= "<precioTotalSinImpuesto>" . $sub_total . "</precioTotalSinImpuesto>";
 
             $string .= "<impuestos>";
             // foreach ($this->taxes as $tax) {
@@ -196,97 +174,9 @@ class OrderXmlController extends Controller
 
             $string .= "</detalle>";
         }
+
         $string .= '</detalles>';
-
-        // $string .= '<infoAdicional>';
-        // $string .= '<campoAdicional nombre="Dirección">' . $order->address . '</campoAdicional>';
-        // $string .= '<campoAdicional nombre="Email">' . $order->email . '</campoAdicional>';
-        // $string .= '</infoAdicional>';
-        $string .= '</notaCredito>';
-
-        return $string;
-    }
-
-    private function invoice($order, $company, $order_items)
-    {
-        $buyer_id = $order->identication;
-        $string = '';
-        $string .= '<?xml version="1.0" encoding="UTF-8"?>';
-        $string .= '<factura id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
-
-        $string .= $this->infoTributaria($company, $order);
-        $string .= '<infoFactura>';
-
-        $date = new \DateTime($order->date);
-        $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
-        $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
-        $string .= '<tipoIdentificacionComprador>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionComprador>';
-        $string .= '<razonSocialComprador>' . $order->name . '</razonSocialComprador>';
-        $string .= '<identificacionComprador>' . $buyer_id . '</identificacionComprador>';
-        $string .= $order->address !== null ? '<direccionComprador>' . $order->address . '</direccionComprador>' : null;
-        $string .= '<totalSinImpuestos>' . $order->sub_total . '</totalSinImpuestos>';
-        $string .= '<totalDescuento>' . $order->discount . '</totalDescuento>';
-
-        // Aplied only tax to IVA, NOT aplied to IRBPNR % Imp. al Cons Esp, require add
-        $string .= '<totalConImpuestos>';
-        foreach ($this->grupingTaxes($order_items) as $tax) {
-            $string .= "<totalImpuesto>";
-            $string .= "<codigo>2</codigo>";    // Aplied only tax to IVA
-            $string .= "<codigoPorcentaje>" . $tax->percentageCode . "</codigoPorcentaje>";
-            $string .= "<baseImponible>" . number_format($tax->base, 2, '.', '') . "</baseImponible>";
-            $string .= "<tarifa>" . $tax->percentage . "</tarifa>";
-            $string .= "<valor>" . $tax->value . "</valor>";
-            $string .= "</totalImpuesto>";
-        }
-        $string .= '</totalConImpuestos>';
-
-        $string .= '<propina>0</propina>';
-        $string .= '<importeTotal>' . round($order->total, 2) . '</importeTotal>';
-        $string .= '<moneda>DOLAR</moneda>';
-
-        $string .= '<pagos>';
-        $string .= '<pago>';
-        $string .= '<formaPago>20</formaPago>';
-        $string .= '<total>' . $order->total . '</total>';
-        $string .= '</pago>';
-        $string .= '</pagos>';
-
-        $string .= '</infoFactura>';
-
-        $string .= '<detalles>';
-        foreach ($order_items as $detail) {
-            $sub_total = $detail->quantity * $detail->price;
-            $discount = round($sub_total * $detail->discount * .01, 2);
-            $total = round($sub_total - $discount, 2);
-            $percentage = $detail->iva === 2 ? 12 : 0;
-
-            $string .= "<detalle>";
-
-            $string .= "<codigoPrincipal>" . $detail->code . "</codigoPrincipal>";
-            $string .= "<codigoAuxiliar>" . $detail->code . "</codigoAuxiliar>";
-            $string .= "<descripcion>" . $detail->name . "</descripcion>";
-            $string .= "<cantidad>" . round($detail->quantity, $company->decimal) . "</cantidad>";
-            $string .= "<precioUnitario>" . round($detail->price, $company->decimal) . "</precioUnitario>";
-            $string .= "<descuento>" . $detail->discount . "</descuento>";
-            $string .= "<precioTotalSinImpuesto>" . round($sub_total, 2) . "</precioTotalSinImpuesto>";
-
-            $string .= "<impuestos>";
-            // foreach ($this->taxes as $tax) {
-            $string .= "<impuesto>";
-            $string .= "<codigo>2</codigo>";
-            $string .= "<codigoPorcentaje>" . $detail->iva . "</codigoPorcentaje>";
-            $string .= "<tarifa>" . ($detail->iva === 2 ? 12 : 0) . "</tarifa>";
-            $string .= "<baseImponible>" . round($total, 2) . "</baseImponible>";
-            $string .= "<valor>" . round($percentage * $total * .01, 2) . "</valor>";
-            $string .= "</impuesto>";
-            // }
-            $string .= "</impuestos>";
-
-            $string .= "</detalle>";
-        }
-        $string .= '</detalles>';
-
-        $string .= '</factura>';
+        $string .= '</liquidacionCompra>';
 
         return $string;
     }

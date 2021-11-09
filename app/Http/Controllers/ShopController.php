@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Company;
 use App\Http\Resources\ShopResources;
+use App\ShopRetentionItem;
 use App\Product;
 use App\Shop;
-use App\ShopRetentionItem;
 use App\Tax;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -117,6 +117,27 @@ class ShopController extends Controller
         $except = ['taxes', 'pay_methods', 'app_retention', 'send'];
 
         if ($shop = $branch->shops()->create($request->except($except))) {
+
+            if (count($request->get('products')) > 0) {
+
+                $products = $request->get('products');
+                $array = [];
+
+                foreach ($products as $product) {
+                    $array[] = [
+                        'product_id' => $product['product_id'],
+                        'quantity' => $product['quantity'],
+                        'price' => $product['price'],
+                        'discount' => $product['discount']
+                    ];
+                }
+
+                $shop->shopitems()->createMany($array);
+
+                if ($request->get('send') && $shop->voucher_type === 3) {
+                    (new SettlementOnPurchaseXmlController())->xml($shop->id);
+                }
+            }
 
             if ($shop->voucher_type < 4 && $request->get('app_retention') && count($request->get('taxes')) > 0) {
 
