@@ -89,7 +89,7 @@ class SettlementOnPurchaseXmlController extends Controller
                 $order->xml = $rootfile . DIRECTORY_SEPARATOR . VoucherStates::SIGNED . DIRECTORY_SEPARATOR . $file;
                 $order->state = VoucherStates::SIGNED;
                 $order->save();
-                (new WSSriOrderController())->send($order->id);
+                (new WSSriSettlementOnPurchaseController())->send($order->id);
             }
         }
     }
