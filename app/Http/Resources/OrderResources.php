@@ -22,6 +22,7 @@ class OrderResources extends JsonResource
                 'serie' => $this->serie,
                 'state' => $this->state,
                 'total' => $this->total,
+                'xml' => $this->xml,
             ],
             'customer' => [
                 'name' => $this->name,

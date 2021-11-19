@@ -1,12 +1,10 @@
-<div style="width: 450px; margin-bottom: 3em; position: absolute; top: 10em; box-sizing: border-box;">
-    <table style="width: 425px;" class="table-collapse">
-        <thead>
-            <tr>
-                <th>Forma de pago</th>
-                <th>Valor</th>
-            </tr>
-        </thead>
+<div style="position: absolute; margin-top: .5em;">
+    <table class="table-collapse">
         <tbody>
+            <tr>
+                <th style="width: 375px;">Forma de pago</th>
+                <th style="width: 70px;">Valor</th>
+            </tr>
             <tr>
                 <td>OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO NACIONAL</td>
                 <td style="padding-right: .5em; text-align: right;">{{ number_format($movement->total, 2) }}</td>

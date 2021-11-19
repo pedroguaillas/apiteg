@@ -7,6 +7,7 @@ use App\Http\Resources\ShopResources;
 use App\ShopRetentionItem;
 use App\Product;
 use App\Shop;
+use App\ShopItem;
 use App\Tax;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -134,11 +135,13 @@ class ShopController extends Controller
 
                 $shop->shopitems()->createMany($array);
 
+                // Verificando que sea una LIQUIDACIÓN EN COMPRA para enviar
                 if ($request->get('send') && $shop->voucher_type === 3) {
                     (new SettlementOnPurchaseXmlController())->xml($shop->id);
                 }
             }
 
+            // Verificando que sea una LIQUIDACIÓN EN COMPRA o FACTURA, además que exista retenciones
             if ($shop->voucher_type < 4 && $request->get('app_retention') && count($request->get('taxes')) > 0) {
 
                 $taxes = $request->get('taxes');
@@ -229,6 +232,28 @@ class ShopController extends Controller
             'taxes' => Tax::all(),
             'series' => $series
         ]);
+    }
+
+    // Solo liquidacion en compra
+    public function showPdf($id)
+    {
+        $movement = Shop::join('providers AS p', 'shops.provider_id', 'p.id')
+            ->select('shops.*', 'p.*')
+            ->where('shops.id', $id)
+            ->first();
+
+        $movement_items = ShopItem::join('products', 'products.id', 'shop_items.product_id')
+            ->select('products.*', 'shop_items.*')
+            ->where('shop_items.shop_id', $id)
+            ->get();
+
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+
+        $pdf = PDF::loadView('vouchers/settlementonpurchase', compact('movement', 'company', 'movement_items'));
+
+        return $pdf->stream();
     }
 
     public function showPdfRetention($id)

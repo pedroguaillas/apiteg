@@ -7,11 +7,11 @@
             <table style="width: 100%;" class="table table-sm">
                 <tbody class="widthboder">
                     <tr>
-                        <td class="relleno">Razón Social / Nombres Y Apellidos: {{ $movement->name }}</td>
+                        <td class="relleno">Nombres Y Apellidos: {{ $movement->name }}</td>
                         <td class="align-middle">Identificación: {{ $movement->identication }}</td>
                     </tr>
                     <tr>
-                        <td class="relleno">Fecha de Emisión: {{ date( "d/m/Y", strtotime( $movement->date ) ) }}</td>
+                        <td class="relleno">Fecha: {{ date( "d/m/Y", strtotime( $movement->date ) ) }}</td>
                     </tr>
                     <tr>
                         <td class="relleno" colspan="2">Dirección: {{ $movement->address }}</td>
@@ -24,7 +24,7 @@
 <tr>
     <td colspan="2">
         <table style="width: 100%; border-radius: 10px; margin-top: .5em;" class="table-collapse">
-            <tbody>
+            <thead>
                 <tr>
                     <th style="width: 5em;">Cod. Principal</th>
                     <th style="width: 4em;">Cant.</th>
@@ -33,35 +33,29 @@
                     <th style="width: 5em;">Descuento</th>
                     <th style="width: 5em;">Subtotal</th>
                 </tr>
-            </tbody>
-        </table>
-    </td>
-</tr>
-@foreach($movement_items as $item)
-<tr>
-    <td colspan="2">
-        <table style="width: 100%;" class="table-collapse">
+            </thead>
             <tbody>
+                @foreach($movement_items as $item)
                 <tr>
-                    <td style="text-align: center; width: 5em;">{{ $item->code }}</td>
-                    <td style="text-align: center; width: 4em;">{{ number_format($item->quantity, $company->decimal) }}</td>
-                    <td>{{ $item->name }}</td>
-                    <td style="text-align: right; width: 5em;">{{ number_format($item->price, $company->decimal) }}</td>
-                    <td style="text-align: right; width: 5em;">{{ number_format($item->discount, 2) }}</td>
-                    <td style="text-align: right; width: 5em;">{{ number_format($item->quantity * $item->price, 2) }}</td>
+                    <td style="padding: .5em; text-align: center;">{{ $item->code }}</td>
+                    <td style="padding: .5em; text-align: center;">{{ number_format($item->quantity, $company->decimal) }}</td>
+                    <td style="padding: .5em;">{{ $item->name }}</td>
+                    <td style="padding: .5em; text-align: right;">{{ number_format($item->price, $company->decimal) }}</td>
+                    <td style="padding: .5em; text-align: right;">{{ number_format($item->discount, 2) }}</td>
+                    <td style="padding: .5em; text-align: right;">{{ number_format($item->quantity * $item->price, 2) }}</td>
                 </tr>
+                @endforeach
             </tbody>
         </table>
     </td>
 </tr>
-@endforeach
 @endsection
 
 @section('footer')
 <table style="width: 100%;">
     <tbody>
         <tr>
-            <td>
+            <td style="width: 350px;">
                 <!-- @include('vouchers.theme.additionalinformation') -->
                 @include('vouchers.theme.payment')
             </td>

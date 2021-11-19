@@ -1,5 +1,4 @@
-<div style="padding: 2px 2px 0px 2px" class="card border-dark">
-    <table class="table table-sm">
+    <table>
         <tbody class="widthboder">
             <tr style="font-size: 16px;">
                 <td class="relleno">R.U.C.:</td>
@@ -13,7 +12,7 @@
                     @break
 
                     @case(3)
-                    LIQUIDACION EN COMPRA
+                    LIQUIDACIÓN EN COMPRA
                     @break
 
                     @case(4)
@@ -70,4 +69,3 @@
             </tr> -->
         </tbody>
     </table>
-</div>

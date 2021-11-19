@@ -1,4 +1,4 @@
-<div style="width: 200px;">
+<div style="width: 200px; margin-top: .5em;">
     <table class="table-collapse">
         <tbody>
             <tr>

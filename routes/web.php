@@ -107,6 +107,10 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
     // Liquidacion compra
     $router->get('shops/{id}/xml', 'SettlementOnPurchaseXmlController@xml');
+    $router->get('shops/{id}/download', 'SettlementOnPurchaseXmlController@download');
+    $router->get('shops/{id}/sendsri', 'WSSriSettlementOnPurchaseController@send');
+    $router->get('shops/{id}/authorize', 'WSSriSettlementOnPurchaseController@authorize');
+    $router->get('shops/{id}/pdf', 'ShopController@showPdf');
 
     //shops Import from txt
     $router->post('shops/import', 'ShopImportController@import');

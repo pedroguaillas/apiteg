@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
@@ -11,7 +11,7 @@
         @break
 
         @case(3)
-        LIQUIDACION EN COMPRA
+        LIQUIDACIÓN DE COMPRA DE BIENES Y PRESTACIÓN DE SERVICIOS
         @break
 
         @case(4)
@@ -23,7 +23,7 @@
         @break
 
         @case(7)
-        RETENCION
+        RETENCIÓN
         @break
 
         @default
@@ -41,6 +41,11 @@
             margin: 5em 2.5em 3em;
             font-size: 12px;
             font-family: sans-serif;
+        }
+
+        /* Este estable el margen de la hoja */
+        html {
+            margin: 1.5em;
         }
 
         .widthboder {
@@ -77,15 +82,13 @@
 </head>
 
 <body>
-    <table class="table table-borderless m-2">
+     <table style="border-collapse: collapse;">
         <tbody>
             <tr>
                 <td class="mb-0">@include('vouchers.theme.company')</td>
                 <td>@include('vouchers.theme.information')</td>
             </tr>
-            <tr>
-                <td colspan="2">@yield('body')</td>
-            </tr>
+            @yield('body')
             <tr>
                 <td colspan="2">@yield('footer')</td>
             </tr>
