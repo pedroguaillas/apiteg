@@ -89,11 +89,11 @@ class CompanyController extends Controller
                 $input['sign_valid_to'] = $validTo->format('Y/m/d H:i:s');
                 $date_aux = date('Y/m/d H:i:s');
                 // Valid cert
-                if (!(($date_aux >= $input['sign_valid_from']) && ($date_aux <= $input['sign_valid_to']))) {
-                    return response()->json(['message' => 'EXPIRED_DIGITAL_CERT'], 403);
-                } else {
-                    $input['cert_dir'] = $certname;
-                }
+                // if (!(($date_aux >= $input['sign_valid_from']) && ($date_aux <= $input['sign_valid_to']))) {
+                //     return response()->json(['message' => 'EXPIRED_DIGITAL_CERT'], 403);
+                // } else {
+                // }
+                $input['cert_dir'] = $certname;
             }
         }
 
