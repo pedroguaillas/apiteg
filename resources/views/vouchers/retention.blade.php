@@ -39,7 +39,7 @@
                     <td style="padding: .1em; text-align: left;">
                         {{ $movement->voucher_type_v === 1 ? 'FACTURA' : 'Liquidación en Compras' }}
                     </td>
-                    <td style="padding: .1em; text-align: left;">{{ str_replace('-', '', $movement->serie) }}</td>
+                    <td style="padding: .1em; text-align: left;">{{ str_replace('-', '', $movement->serie_retencion) }}</td>
                     <td style="padding: .1em; text-align: left;">{{ date( "d/m/Y", strtotime( $movement->date_v ) ) }}</td>
                     <td style="padding: .1em; text-align: center;">{{ date( "m/Y", strtotime( $movement->date ) ) }}</td>
                     <td style="padding: .1em; text-align: center;">{{ number_format($item->base, 2) }}</td>

@@ -23,6 +23,7 @@ class ShopResources extends JsonResource
                 // Retención
                 'serie_retencion' => $this->serie_retencion,
                 'state_retencion' => $this->state_retencion,
+                'xml_retention' => $this->xml_retention,
                 'total' => $this->total,
                 // Liquidación en compra
                 'state' => $this->state,

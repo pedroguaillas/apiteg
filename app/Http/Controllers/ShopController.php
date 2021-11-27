@@ -119,6 +119,8 @@ class ShopController extends Controller
 
         if ($shop = $branch->shops()->create($request->except($except))) {
 
+            $send_set = false;
+
             if (count($request->get('products')) > 0) {
 
                 $products = $request->get('products');
@@ -137,9 +139,11 @@ class ShopController extends Controller
 
                 // Verificando que sea una LIQUIDACIÓN EN COMPRA para enviar
                 if ($request->get('send') && $shop->voucher_type === 3) {
-                    (new SettlementOnPurchaseXmlController())->xml($shop->id);
+                    $send_set = true;
                 }
             }
+
+            $send_ret = false;
 
             // Verificando que sea una LIQUIDACIÓN EN COMPRA o FACTURA, además que exista retenciones
             if ($shop->voucher_type < 4 && $request->get('app_retention') && count($request->get('taxes')) > 0) {
@@ -160,8 +164,16 @@ class ShopController extends Controller
                 $shop->shopretentionitems()->createMany($array);
 
                 if ($request->get('send')) {
-                    (new RetentionXmlController())->xml($shop->id);
+                    $send_ret = true;
                 }
+            }
+
+            // Envio de comprobantes
+            if ($send_set) {
+                (new SettlementOnPurchaseXmlController())->xml($shop->id);
+            }
+            if ($send_ret) {
+                (new RetentionXmlController())->xml($shop->id);
             }
         }
     }
@@ -258,12 +270,13 @@ class ShopController extends Controller
 
     public function showPdfRetention($id)
     {
-        $movement = Shop::join('providers AS p', 'shops.provider_id', 'p.id')
+        $movement = Shop::join('providers AS p', 'provider_id', 'p.id')
             ->select(
                 'shops.id',
                 'shops.date AS date_v',
                 'shops.voucher_type AS voucher_type_v',
                 'shops.date_retention AS date',
+                'shops.serie AS serie_retencion',
                 'shops.serie_retencion AS serie',
                 'shops.autorized_retention AS autorized',
                 'shops.xml_retention AS xml',
