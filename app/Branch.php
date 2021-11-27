@@ -18,11 +18,6 @@ class Branch extends Model
         return $this->hasMany(Product::class);
     }
 
-    public function contacts()
-    {
-        return $this->hasMany(Contact::class);
-    }
-
     public function customers()
     {
         return $this->hasMany(Customer::class);
@@ -31,6 +26,11 @@ class Branch extends Model
     public function providers()
     {
         return $this->hasMany(Provider::class);
+    }
+
+    public function carriers()
+    {
+        return $this->hasMany(Carrier::class);
     }
 
     public function company()
@@ -48,9 +48,9 @@ class Branch extends Model
         return $this->hasMany(Shop::class);
     }
 
-    public function movements()
+    public function referralguides()
     {
-        return $this->hasMany(Movement::class);
+        return $this->hasMany(ReferralGuide::class);
     }
 
     public function unities()

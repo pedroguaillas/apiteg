@@ -124,6 +124,20 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('retentions/sendsri/{id}', 'WSSriRetentionController@sendSri');
     $router->get('retentions/authorize/{id}', 'WSSriRetentionController@authorize');
 
+    // Guias de remision
+    $router->get('referralguides', 'ReferralGuideController@index');
+    $router->get('referralguides/create', 'ReferralGuideController@create');
+    $router->post('referralguides', 'ReferralGuideController@store');
+    $router->get('referralguides/{id}', 'ReferralGuideController@show');
+    $router->put('referralguides/{id}', 'ReferralGuideController@update');
+    $router->get('referralguides/{id}/pdf', 'ReferralGuideController@showPdf');
+
+    //Guias de remision Xml
+    $router->get('referralguides/xml/{id}', 'ReferralGuideXmlController@xml');
+    $router->get('referralguides/download/{id}', 'ReferralGuideXmlController@download');
+    $router->get('referralguides/sendsri/{id}', 'WSSriReferralGuide@send');
+    $router->get('referralguides/authorize/{id}', 'WSSriReferralGuide@authorize');
+
     //Customers
     $router->get('customers', 'CustomerController@index');
     $router->post('customers', 'CustomerController@store');
@@ -135,4 +149,10 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->post('providers', 'ProviderController@store');
     $router->get('providers/{id}/edit', 'ProviderController@edit');
     $router->put('providers/{id}', 'ProviderController@update');
+
+    // Transportistas
+    $router->get('carriers', 'CarrierController@index');
+    $router->post('carriers', 'CarrierController@store');
+    $router->get('carriers/{id}/edit', 'CarrierController@edit');
+    $router->put('carriers/{id}', 'CarrierController@update');
 });

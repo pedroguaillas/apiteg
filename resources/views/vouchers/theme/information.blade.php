@@ -23,6 +23,10 @@
                     NOTA DE DÉDITO
                     @break
 
+                    @case(6)
+                    GUIA DE REMISIÓN
+                    @break
+
                     @case(7)
                     COMPROBANTE DE RETENCIÓN
                     @break

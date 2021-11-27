@@ -8,7 +8,7 @@ class VoucherStates
     const SAVED         = 'CREADO';
     const SIGNED        = 'FIRMADO';
     const ACCEPTED      = 'ACEPTADO';
-    const REJECTED      = 'RECHAZADO';
+    const REJECTED      = 'NO AUTORIZADO';
     const SENDED        = 'ENVIADO';
     const RECEIVED      = 'RECIBIDA';
     const RETURNED      = 'DEVUELTA';

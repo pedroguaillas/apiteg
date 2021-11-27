@@ -22,6 +22,10 @@
         NOTA DE DÉDITO
         @break
 
+        @case(6)
+        GUIA DE REMISIÓN
+        @break
+
         @case(7)
         RETENCIÓN
         @break
@@ -82,7 +86,7 @@
 </head>
 
 <body>
-     <table style="border-collapse: collapse;">
+    <table style="border-collapse: collapse;">
         <tbody>
             <tr>
                 <td class="mb-0">@include('vouchers.theme.company')</td>
