@@ -29,7 +29,8 @@ class ShopController extends Controller
 
         $shops = Shop::join('providers AS p', 'p.id', 'provider_id')
             ->select('shops.*', 'p.name')
-            ->where('p.branch_id', $branch->id);
+            ->where('p.branch_id', $branch->id)
+            ->orderBy('shops.created_at', 'DESC');
 
         return ShopResources::collection($shops->paginate());
     }

@@ -33,6 +33,8 @@ $router->group(['middleware' => 'jwt.refresh'], function ($router) {
 
 $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
+    $router->get('dashboard', 'DashboardController@index');
+
     // Logout
     $router->get('logout', 'AuthController@logout');
 

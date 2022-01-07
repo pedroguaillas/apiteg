@@ -101,7 +101,7 @@ class RetentionXmlController extends Controller
 
         $string .= '<infoCompRetencion>';
 
-        $date = new \DateTime($shop->date_retencion);
+        $date = new \DateTime($shop->date_retention);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
         $string .= '<tipoIdentificacionSujetoRetenido>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionSujetoRetenido>';

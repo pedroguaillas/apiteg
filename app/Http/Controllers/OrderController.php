@@ -28,7 +28,8 @@ class OrderController extends Controller
 
         $orders = Order::join('customers AS c', 'c.id', 'customer_id')
             ->select('orders.*', 'c.name')
-            ->where('c.branch_id', $branch->id);
+            ->where('c.branch_id', $branch->id)
+            ->orderBy('orders.created_at', 'DESC');
 
         return OrderResources::collection($orders->paginate());
     }
