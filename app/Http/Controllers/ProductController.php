@@ -109,12 +109,9 @@ class ProductController extends Controller
         $products = Product::leftJoin('categories', 'categories.id', 'products.category_id')
             ->leftJoin('unities', 'unities.id', 'products.unity_id')
             ->where('products.branch_id', $branch->id)
-            ->select('products.*', 'categories.category', 'unities.unity')->get();
+            ->select('products.*', 'categories.category', 'unities.unity');
 
-        return response()->json([
-            'msm' => 'Result from server',
-            'products' => ProductResources::collection($products)
-        ]);
+        return ProductResources::collection($products->latest()->paginate());
     }
 
     /**

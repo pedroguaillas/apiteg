@@ -10,12 +10,6 @@ use App\Http\Resources\CustomerResources;
 
 class CustomerController extends Controller
 {
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $auth = Auth::user();
@@ -28,22 +22,11 @@ class CustomerController extends Controller
         return CustomerResources::collection($customers->paginate());
     }
 
-    /**
-     * Display a listing of the resource for search smart.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function findSmart()
     {
         return Customer::all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $auth = Auth::user();
@@ -60,48 +43,43 @@ class CustomerController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Customer  $customer
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Customer $customer)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Customer  $customer
-     * @return \Illuminate\Http\Response
-     */
     public function edit(int $id)
     {
         $customer = Customer::find($id);
         return response()->json(['customer' => $customer]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Customer  $customer
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, int $id)
     {
         $customer = Customer::findOrFail($id);
         $customer->update($request->all());
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Customer  $customer
-     * @return \Illuminate\Http\Response
-     */
+    public function importCsv(Request $request)
+    {
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $customers = $request->get('customers');
+
+        $newcustomers = [];
+        foreach ($customers as $customer) {
+            array_push($newcustomers, [
+                'type_identification' => $customer['type_identification'],
+                'identication' => $customer['identication'],
+                'name' => $customer['name'],
+                'address' => $customer['address'],
+            ]);
+        }
+        $customer = $company->branches->first()->customers()->createMany($newcustomers);
+
+        $customers = Customer::where('branch_id', $branch->id);
+
+        return CustomerResources::collection($customers->latest()->paginate());
+    }
+
     public function destroy(Customer $customer)
     {
         //

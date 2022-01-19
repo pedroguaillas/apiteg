@@ -145,6 +145,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->post('customers', 'CustomerController@store');
     $router->get('customers/{id}/edit', 'CustomerController@edit');
     $router->put('customers/{id}', 'CustomerController@update');
+    $router->post('customers_import_csv', 'CustomerController@importCsv');
 
     // Proveedores
     $router->get('providers', 'ProviderController@index');
