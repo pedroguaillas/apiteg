@@ -26,6 +26,10 @@ class ReferralGuideXmlController extends Controller
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
 
+        if (!$company->active_voucher) {
+            return;
+        }
+
         $referralguide = ReferralGuide::join('customers AS c', 'c.id', 'customer_id')
             ->join('carriers AS ca', 'ca.id', 'carrier_id')
             ->select('ca.identication AS ca_identication', 'ca.name AS ca_name', 'ca.license_plate', 'c.identication', 'c.name', 'referral_guides.*')

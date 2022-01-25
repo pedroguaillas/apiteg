@@ -26,6 +26,10 @@ class OrderXmlController extends Controller
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
 
+        if (!$company->active_voucher) {
+            return;
+        }
+
         $order = Order::join('customers AS c', 'c.id', 'orders.customer_id')
             ->select('c.identication', 'c.name', 'c.address', 'c.phone', 'c.email', 'orders.*')
             ->where('orders.id', $id)

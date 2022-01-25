@@ -25,6 +25,10 @@ class RetentionXmlController extends Controller
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
 
+        if (!$company->active_voucher) {
+            return;
+        }
+
         $shop = Shop::join('providers AS p', 'p.id', 'shops.provider_id')
             ->select('p.*', 'shops.*')
             // ->select('p.identication', 'p.name', 'p.address', 'p.phone', 'p.email', 'shops.*')
