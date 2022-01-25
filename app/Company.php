@@ -11,7 +11,10 @@ class Company extends Model
         'accounting', 'micro_business', 'retention_agent',
         'phone', 'logo_dir', 'cert_dir', 'pass_cert',
         'sign_valid_from', 'sign_valid_to',
-        'enviroment_type', 'decimal'
+        'enviroment_type', 'decimal',
+
+        //Agregado las 2 columas el 25 de enero del 2022
+        'rimpe'
     ];
 
     public function branches()
