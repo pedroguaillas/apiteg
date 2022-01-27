@@ -28,6 +28,11 @@
                 <td class="align-middle">{{ $company->retention_agent }}</td>
             </tr>
             @endif
+            @if($company->rimpe)
+            <tr>
+                <td style="text-align: left;" class="relleno" colspan="3">CONTRIBUYENTE RÉGIMEN RIMPE</td>
+            </tr>
+            @endif
         </tbody>
     </table>
 </div>
