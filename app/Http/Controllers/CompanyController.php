@@ -194,9 +194,8 @@ class CompanyController extends Controller
                 // Valid cert
                 // if (!(($date_aux >= $input['sign_valid_from']) && ($date_aux <= $input['sign_valid_to']))) {
                 //     return response()->json(['message' => 'EXPIRED_DIGITAL_CERT'], 403);
-                // } else {
-                //     $input['cert_dir'] = $certname;
-                // }
+                // } 
+                $input['cert_dir'] = $certname;
             }
         }
 
