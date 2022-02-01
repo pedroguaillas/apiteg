@@ -203,8 +203,8 @@ class CompanyController extends Controller
         $input['micro_business'] = $request->micro_business === 'true' ? 1 : 0;
         $input['rimpe'] = $request->rimpe === 'true' ? 1 : 0;
 
-        if ($result = $company->update($input)) {
-            return response()->json(['message' => 'Actualizado compañia', 'result' => $result]);
+        if ($company->update($input)) {
+            return response()->json(['message' => 'Actualizado compañia', 'inputs' => $input]);
         } else {
             return response()->json(['message' => 'Errores desconocidos']);
         }
