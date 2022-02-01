@@ -13,11 +13,7 @@ use App\Unity;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $auth = Auth::user();
@@ -33,11 +29,24 @@ class ProductController extends Controller
         return ProductResources::collection($products->paginate());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function search(String $search)
+    {
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $products = Product::leftJoin('categories', 'categories.id', 'products.category_id')
+            ->leftJoin('unities', 'unities.id', 'products.unity_id')
+            ->where('products.branch_id', $branch->id)
+            ->where(function ($query) use ($search) {
+                return $query->where('products.code', 'LIKE', "%$search%")
+                    ->orWhere('products.name', 'LIKE', "%$search%");
+            })
+            ->select('products.*', 'categories.category', 'unities.unity');
+
+        return ProductResources::collection($products->paginate());
+    }
 
     public function create()
     {

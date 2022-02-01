@@ -82,6 +82,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('productscreate', 'ProductController@create');
     $router->post('products', 'ProductController@store');
     $router->get('products/{id}', 'ProductController@show');
+    $router->get('products/{search}/search', 'ProductController@search');
     $router->put('products/{id}', 'ProductController@update');
     $router->post('products_import', 'ProductController@import');
 
@@ -90,6 +91,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('orders/create', 'OrderController@create');
     $router->post('orders', 'OrderController@store');
     $router->get('orders/{id}', 'OrderController@show');
+    $router->get('orders/{search}/search', 'OrderController@search');
     $router->put('orders/{id}', 'OrderController@update');
     $router->get('orders/{id}/pdf', 'OrderController@showPdf');
 
