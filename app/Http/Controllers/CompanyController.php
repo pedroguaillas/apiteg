@@ -161,7 +161,7 @@ class CompanyController extends Controller
         $company = Company::find($request->id);
 
         // New Object constraint
-        $input = $request->except(['logo', 'cert', 'extention_cert']);
+        $input = $request->except(['logo', 'cert', 'extention_cert', 'pass_cert']);
 
         // Load logo
         if ($request->logo !== NULL) {
@@ -178,25 +178,27 @@ class CompanyController extends Controller
 
             $request->file('cert')->storeAs('cert', $certname);
 
-            $results = array();
-            if (openssl_pkcs12_read(Storage::get('cert' . DIRECTORY_SEPARATOR . $certname), $results, $request->pass_cert)) {
-                $cert = $results['cert'];
-                openssl_x509_export($cert, $certout);
-                $data = openssl_x509_parse($certout);
-                $validFrom = \DateTime::createFromFormat('U', strval($data['validFrom_time_t']));
-                $validFrom->setTimeZone(new \DateTimeZone('America/Guayaquil'));
-                $input['sign_valid_from'] = $validFrom->format('Y/m/d H:i:s');
-                $validTo = \DateTime::createFromFormat('U', strval($data['validTo_time_t']));
-                $validTo->setTimeZone(new \DateTimeZone('America/Guayaquil'));
-                $input['sign_valid_to'] = $validTo->format('Y/m/d H:i:s');
-                $date_aux = date('Y/m/d H:i:s');
+            // $results = array();
+            // if (openssl_pkcs12_read(Storage::get('cert' . DIRECTORY_SEPARATOR . $certname), $results, $request->pass_cert)) {
+            //     $cert = $results['cert'];
+            //     openssl_x509_export($cert, $certout);
+            //     $data = openssl_x509_parse($certout);
+            //     $validFrom = \DateTime::createFromFormat('U', strval($data['validFrom_time_t']));
+            //     $validFrom->setTimeZone(new \DateTimeZone('America/Guayaquil'));
+            //     $input['sign_valid_from'] = $validFrom->format('Y/m/d H:i:s');
+            //     $validTo = \DateTime::createFromFormat('U', strval($data['validTo_time_t']));
+            //     $validTo->setTimeZone(new \DateTimeZone('America/Guayaquil'));
+            //     $input['sign_valid_to'] = $validTo->format('Y/m/d H:i:s');
+            //     $date_aux = date('Y/m/d H:i:s');
 
-                // Valid cert
-                // if (!(($date_aux >= $input['sign_valid_from']) && ($date_aux <= $input['sign_valid_to']))) {
-                //     return response()->json(['message' => 'EXPIRED_DIGITAL_CERT'], 403);
-                // } 
-                $input['cert_dir'] = $certname;
-            }
+            //     // Valid cert
+            //     if (!(($date_aux >= $input['sign_valid_from']) && ($date_aux <= $input['sign_valid_to']))) {
+            //         return response()->json(['message' => 'EXPIRED_DIGITAL_CERT'], 403);
+            //     }
+            // }
+            
+            $input['cert_dir'] = $certname;
+            $input['pass_cert'] = $request->pass_cert;
         }
 
         $input['accounting'] = $request->accounting === 'true' ? 1 : 0;

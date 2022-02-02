@@ -202,6 +202,10 @@ class WSSriOrderController
             Storage::makeDirectory($folder);
         }
 
+        if (file_exists(Storage::path($order->xml))) {
+            Storage::delete($order->xml);
+        }
+
         Storage::move($order->xml, $xml);
         $order->state = $newState;
         $order->xml = $xml;
