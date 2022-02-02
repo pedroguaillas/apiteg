@@ -225,6 +225,7 @@ class OrderXmlController extends Controller
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
         $string .= '<tipoIdentificacionComprador>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionComprador>';
+        $string .= $order->guia !== null ? '<guiaRemision>' . $order->guia . '</guiaRemision>' : null;
         $string .= '<razonSocialComprador>' . $order->name . '</razonSocialComprador>';
         $string .= '<identificacionComprador>' . $buyer_id . '</identificacionComprador>';
         $string .= $order->address !== null ? '<direccionComprador>' . $order->address . '</direccionComprador>' : null;

@@ -20,9 +20,13 @@ class Order extends Model
         'authorization', 'iva_retention',
         'rent_retention', 'xml',
         'extra_detail',
+        // Guia de Remisión
+        'guia',
         // Retencion
         'serie_retencion', 'date_retention',
-        'authorization_retention'
+        'authorization_retention',
+        // Nota de Credito
+        'date_order', 'serie_order', 'reason'
     ];
 
     public function orderitems()

@@ -99,12 +99,7 @@ class OrderController extends Controller
 
         return $serie;
     }
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         $auth = Auth::user();
@@ -134,12 +129,6 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Voucher  $voucher
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $auth = Auth::user();
@@ -196,13 +185,6 @@ class OrderController extends Controller
         return $pdf->stream();
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Order  $order
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $order = Order::findOrFail($id);
@@ -224,16 +206,5 @@ class OrderController extends Controller
                 $order->orderitems()->createMany($array);
             }
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Voucher  $voucher
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }

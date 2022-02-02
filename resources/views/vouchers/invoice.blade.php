@@ -12,6 +12,9 @@
                     </tr>
                     <tr>
                         <td class="relleno">Fecha de Emisión: {{ date( "d/m/Y", strtotime( $movement->date ) ) }}</td>
+                        @if($movement->guia)
+                        <td class="align-middle">Guia de Remisión: {{ $movement->guia }}</td>
+                        @endif
                     </tr>
                     <tr>
                         <td class="relleno" colspan="2">Dirección: {{ $movement->address }}</td>

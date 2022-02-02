@@ -78,11 +78,12 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     // End Account Entries .....
 
     //Products
-    $router->get('products', 'ProductController@index');
+    $router->get('products', 'ProductController@search');
+    // $router->get('products', 'ProductController@index');
     $router->get('productscreate', 'ProductController@create');
     $router->post('products', 'ProductController@store');
     $router->get('products/{id}', 'ProductController@show');
-    $router->get('products/{search}/search', 'ProductController@search');
+    $router->get('products/search/{search}', 'ProductController@search');
     $router->put('products/{id}', 'ProductController@update');
     $router->post('products_import', 'ProductController@import');
 

@@ -29,15 +29,15 @@ class ProductController extends Controller
         return ProductResources::collection($products->paginate());
     }
 
-    public function search(String $search)
+    public function search(String $search = '')
     {
         $auth = Auth::user();
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
         $branch = $company->branches->first();
 
-        $products = Product::leftJoin('categories', 'categories.id', 'products.category_id')
-            ->leftJoin('unities', 'unities.id', 'products.unity_id')
+        $products = Product::leftJoin('categories', 'categories.id', 'category_id')
+            ->leftJoin('unities', 'unities.id', 'unity_id')
             ->where('products.branch_id', $branch->id)
             ->where(function ($query) use ($search) {
                 return $query->where('products.code', 'LIKE', "%$search%")
@@ -67,12 +67,6 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $auth = Auth::user();
@@ -123,12 +117,6 @@ class ProductController extends Controller
         return ProductResources::collection($products->latest()->paginate());
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $auth = Auth::user();
@@ -149,38 +137,14 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Request $request)
     {
         return Product::find($request->get('id'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Provider  $provider
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
         $product->update($request->all());
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Product $product)
-    {
-        //
     }
 }

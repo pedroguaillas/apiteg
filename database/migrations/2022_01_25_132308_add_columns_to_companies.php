@@ -14,8 +14,8 @@ class AddColumnsToCompanies extends Migration
     public function up()
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->date('expired')->nullable()->after('active_voucher');
-            $table->boolean('rimpe')->default(false)->after('micro_business');
+            $table->date('expired')->nullable()->after('active_voucher');   // En caso de no pagar establecer la fecha de caducidad de pago
+            $table->boolean('rimpe')->default(false)->after('micro_business');  //Regimimen rimpe
         });
     }
 
