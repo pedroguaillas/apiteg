@@ -61,6 +61,10 @@
             padding: .5em;
         }
 
+        .relleno-nc {
+            padding: .2em .5em;
+        }
+
         .m-1 {
             margin: 1em;
         }

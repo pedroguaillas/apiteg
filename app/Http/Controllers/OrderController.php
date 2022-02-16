@@ -173,12 +173,7 @@ class OrderController extends Controller
                 $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items'));
                 break;
             case 4:
-                $invoice = Order::select('date', 'serie')
-                    ->join('vouchers', 'vouchers.movement_id', 'movements.id')
-                    ->where('movements.id', $movement->doc_realeted)
-                    ->first();
-
-                $pdf = PDF::loadView('vouchers/creditnote', compact('movement', 'company', 'movement_items', 'invoice'));
+                $pdf = PDF::loadView('vouchers/creditnote', compact('movement', 'company', 'movement_items'));
                 break;
         }
 

@@ -17,6 +17,8 @@
                 <td class="relleno" colspan="2">Obligado a llevar contabilidad</td>
                 <td class="align-middle">{{ $company->accounting ? 'SI' : 'NO' }}</td>
             </tr>
+            @if($movement->voucher_type!==4)
+
             @if($company->micro_business)
             <tr>
                 <td style="text-align: left;" class="relleno" colspan="3">CONTRIBUYENTE RÉGIMEN MICROEMPRESAS</td>
@@ -32,6 +34,8 @@
             <tr>
                 <td style="text-align: left;" class="relleno" colspan="3">CONTRIBUYENTE RÉGIMEN RIMPE</td>
             </tr>
+            @endif
+
             @endif
         </tbody>
     </table>
