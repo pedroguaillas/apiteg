@@ -79,9 +79,9 @@ class OrderXmlController extends Controller
         // Si existe el certificado electronico y se ha creado Xml
         if ($company->cert_dir !== null && file_exists(Storage::path($folder . $file))) {
             // $public_path = '\';
-            // $public_path = '/var/www/apiteg';
+            $public_path = '/var/www/apiteg';
             //Local --------------------------
-            $public_path = 'D:\apps\project\apiteg';
+            // $public_path = 'D:\apps\project\apiteg';
 
             $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
@@ -137,7 +137,7 @@ class OrderXmlController extends Controller
 
         $string .= "<totalSinImpuestos>$order->sub_total</totalSinImpuestos>";
         $string .= "<valorModificacion>$order->total</valorModificacion>";
-        
+
         // Only Credit Note End ..................................
 
         $string .= '<moneda>DOLAR</moneda>';
