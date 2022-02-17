@@ -15,11 +15,7 @@ use Barryvdh\DomPDF\Facade as PDF;
 
 class ShopController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $auth = Auth::user();
@@ -35,11 +31,27 @@ class ShopController extends Controller
         return ShopResources::collection($shops->paginate());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function shoplist(Request $request)
+    {
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $search = $request->search;
+
+        $shops = Shop::join('providers AS p', 'p.id', 'provider_id')
+            ->select('shops.*', 'p.name')
+            ->where('shops.branch_id', $branch->id)
+            ->where(function ($query) use ($search) {
+                return $query->where('shops.serie', 'LIKE', "%$search%")
+                    ->orWhere('p.name', 'LIKE', "%$search%");
+            })
+            ->orderBy('shops.created_at', 'DESC');
+
+        return ShopResources::collection($shops->paginate());
+    }
+
     public function create()
     {
         $auth = Auth::user();
@@ -103,12 +115,6 @@ class ShopController extends Controller
         return $serie;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $auth = Auth::user();
@@ -212,12 +218,6 @@ class ShopController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Shop  $shop
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $auth = Auth::user();
@@ -301,24 +301,6 @@ class ShopController extends Controller
         return $pdf->stream();
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Shop  $shop
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Shop  $shop
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $except = ['id', 'taxes', 'pay_methods', 'app_retention', 'send'];
@@ -351,16 +333,5 @@ class ShopController extends Controller
                 }
             }
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Shop  $shop
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Shop $shop)
-    {
-        //
     }
 }

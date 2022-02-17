@@ -10,11 +10,6 @@ use App\Provider;
 
 class ProviderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $auth = Auth::user();
@@ -27,32 +22,25 @@ class ProviderController extends Controller
         return ProviderResources::collection($providers->paginate());
     }
 
-    /**
-     * Display a listing of the resource for search smart.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function findSmart()
+    public function providerlist(Request $request)
     {
-        return Provider::all();
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $search = $request->search;
+
+        $providers = Provider::where('branch_id', $branch->id)
+            ->where(function ($query) use ($search) {
+                return $query->where('identication', 'LIKE', "%$search%")
+                    ->orWhere('name', 'LIKE', "%$search%");
+            })
+            ->orderBy('created_at', 'DESC');
+
+        return ProviderResources::collection($providers->paginate());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $auth = Auth::user();
@@ -72,50 +60,15 @@ class ProviderController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Provider  $provider
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Provider $provider)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Provider  $provider
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         $provider = Provider::findOrFail($id);
         return response()->json(['provider' => $provider]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Provider  $provider
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $provider = Provider::findOrFail($id);
         $provider->update($request->except(['id']));
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Provider  $provider
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Provider $provider)
-    {
-        //
     }
 }

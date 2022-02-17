@@ -22,9 +22,23 @@ class CustomerController extends Controller
         return CustomerResources::collection($customers->paginate());
     }
 
-    public function findSmart()
+    public function customerlist(Request $request)
     {
-        return Customer::all();
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $search = $request->search;
+
+        $customers = Customer::where('branch_id', $branch->id)
+            ->where(function ($query) use ($search) {
+                return $query->where('identication', 'LIKE', "%$search%")
+                    ->orWhere('name', 'LIKE', "%$search%");
+            })
+            ->orderBy('created_at', 'DESC');
+
+        return CustomerResources::collection($customers->paginate());
     }
 
     public function store(Request $request)
@@ -78,10 +92,5 @@ class CustomerController extends Controller
         $customers = Customer::where('branch_id', $branch->id);
 
         return CustomerResources::collection($customers->latest()->paginate());
-    }
-
-    public function destroy(Customer $customer)
-    {
-        //
     }
 }

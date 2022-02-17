@@ -83,17 +83,17 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     // End Account Entries .....
 
     //Products
-    $router->get('products', 'ProductController@search');
-    // $router->get('products', 'ProductController@index');
+    $router->get('products', 'ProductController@index');
+    $router->post('productlist', 'ProductController@productlist');
     $router->get('productscreate', 'ProductController@create');
     $router->post('products', 'ProductController@store');
     $router->get('products/{id}', 'ProductController@show');
-    $router->get('products/search/{search}', 'ProductController@search');
     $router->put('products/{id}', 'ProductController@update');
     $router->post('products_import', 'ProductController@import');
 
     //orders
     $router->get('orders', 'OrderController@index');
+    $router->post('orderlist', 'OrderController@orderlist');
     $router->get('orders/create', 'OrderController@create');
     $router->post('orders', 'OrderController@store');
     $router->get('orders/{id}', 'OrderController@show');
@@ -109,6 +109,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
     //shops
     $router->get('shops', 'ShopController@index');
+    $router->post('shoplist', 'ShopController@shoplist');
     $router->get('shops/create', 'ShopController@create');
     $router->post('shops', 'ShopController@store');
     $router->get('shops/duplicate/{id}', 'ShopController@duplicate');
@@ -150,6 +151,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
     //Customers
     $router->get('customers', 'CustomerController@index');
+    $router->post('customerlist', 'CustomerController@customerlist');
     $router->post('customers', 'CustomerController@store');
     $router->get('customers/{id}/edit', 'CustomerController@edit');
     $router->put('customers/{id}', 'CustomerController@update');
@@ -157,6 +159,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
 
     // Proveedores
     $router->get('providers', 'ProviderController@index');
+    $router->post('providerlist', 'ProviderController@providerlist');
     $router->post('providers', 'ProviderController@store');
     $router->get('providers/{id}/edit', 'ProviderController@edit');
     $router->put('providers/{id}', 'ProviderController@update');

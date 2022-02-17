@@ -29,12 +29,14 @@ class ProductController extends Controller
         return ProductResources::collection($products->paginate());
     }
 
-    public function search(String $search = '')
+    public function productlist(Request $request)
     {
         $auth = Auth::user();
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
         $branch = $company->branches->first();
+
+        $search = $request->search;
 
         $products = Product::leftJoin('categories', 'categories.id', 'category_id')
             ->leftJoin('unities', 'unities.id', 'unity_id')

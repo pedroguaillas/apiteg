@@ -29,6 +29,27 @@ class OrderController extends Controller
         return OrderResources::collection($orders->paginate());
     }
 
+    public function orderlist(Request $request)
+    {
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $search = $request->search;
+
+        $orders = Order::join('customers AS c', 'c.id', 'customer_id')
+            ->select('orders.*', 'c.name')
+            ->where('orders.branch_id', $branch->id)
+            ->where(function ($query) use ($search) {
+                return $query->where('orders.serie', 'LIKE', "%$search%")
+                    ->orWhere('c.name', 'LIKE', "%$search%");
+            })
+            ->orderBy('orders.created_at', 'DESC');
+
+        return OrderResources::collection($orders->paginate());
+    }
+
     public function create()
     {
         $auth = Auth::user();
