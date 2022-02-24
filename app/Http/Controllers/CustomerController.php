@@ -22,14 +22,20 @@ class CustomerController extends Controller
         return CustomerResources::collection($customers->paginate());
     }
 
-    public function customerlist(Request $request)
+    public function customerlist(Request $request = null)
     {
         $auth = Auth::user();
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
         $branch = $company->branches->first();
 
-        $search = $request->search;
+        $search = '';
+        $paginate = 15;
+
+        if ($request) {
+            $search = $request->search;
+            $paginate = $request->has('paginate') ? $request->paginate : $paginate;
+        }
 
         $customers = Customer::where('branch_id', $branch->id)
             ->where(function ($query) use ($search) {
@@ -38,7 +44,7 @@ class CustomerController extends Controller
             })
             ->orderBy('created_at', 'DESC');
 
-        return CustomerResources::collection($customers->paginate());
+        return CustomerResources::collection($customers->paginate($paginate));
     }
 
     public function store(Request $request)

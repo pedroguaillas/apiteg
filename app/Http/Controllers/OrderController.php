@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Company;
+use App\Customer;
+use App\Http\Resources\CustomerResources;
 use App\Http\Resources\OrderResources;
+use App\Http\Resources\ProductResources;
 use Illuminate\Http\Request;
 use App\Order;
 use App\OrderItem;
 use App\Product;
-use App\Tax;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade as PDF;
 
@@ -58,12 +60,23 @@ class OrderController extends Controller
         $branch = $company->branches->first();
 
         return response()->json([
-            'products' => $branch->products,
-            'customers' => $branch->customers,
-            'taxes' => Tax::all(),
             'series' => $this->getSeries($branch)
         ]);
     }
+
+    // public function create()
+    // {
+    //     $auth = Auth::user();
+    //     $level = $auth->companyusers->first();
+    //     $company = Company::find($level->level_id);
+    //     $branch = $company->branches->first();
+
+    //     return response()->json([
+    //         'products' => $branch->products,
+    //         'customers' => $branch->customers,
+    //         'series' => $this->getSeries($branch)
+    //     ]);
+    // }
 
     private function getSeries($branch)
     {
@@ -84,18 +97,9 @@ class OrderController extends Controller
             ])->orderBy('created_at', 'desc') // Para traer el ultimo
             ->first();
 
-        $dn = Order::select('serie')
-            ->where([
-                ['branch_id', $branch_id], // De la sucursal especifico
-                ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
-                ['voucher_type', 5] // 4-Nota-Debito
-            ])->orderBy('created_at', 'desc') // Para traer el ultimo
-            ->first();
-
         $new_obj = [
             'invoice' => $this->generedSerie($invoice, $branch->store),
             'cn' => $this->generedSerie($cn, $branch->store),
-            'dn' => $this->generedSerie($dn, $branch->store)
         ];
 
         return $new_obj;
@@ -115,7 +119,7 @@ class OrderController extends Controller
             //convert Array to String
             $serie = implode("-", $serie);
         } else {
-            $serie = str_pad($branch_store, 3, 0, STR_PAD_LEFT) . '-001-000000001';
+            $serie = str_pad($branch_store, 3, 0, STR_PAD_LEFT) . '-010-000000001';
         }
 
         return $serie;
@@ -159,14 +163,21 @@ class OrderController extends Controller
 
         $order = Order::findOrFail($id);
 
-        $orderitems = Product::join('order_items AS oi', 'oi.product_id', 'products.id')
+        $products = Product::join('order_items AS oi', 'product_id', 'products.id')
+            ->select('products.*')
+            ->where('order_id', $order->id)
+            ->get();
+
+        $orderitems = Product::join('order_items AS oi', 'product_id', 'products.id')
             ->select('products.iva', 'oi.*')
             ->where('order_id', $order->id)
             ->get();
 
+        $customers = Customer::where('id', $order->customer_id)->get();
+
         return response()->json([
-            'products' => $branch->products,
-            'customers' => $branch->customers,
+            'products' => ProductResources::collection($products),
+            'customers' => CustomerResources::collection($customers),
             'order' => $order,
             'order_items' => $orderitems,
             'series' => $this->getSeries($branch)

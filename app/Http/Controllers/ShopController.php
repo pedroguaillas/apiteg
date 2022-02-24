@@ -109,7 +109,7 @@ class ShopController extends Controller
             //convert Array to String
             $serie = implode("-", $serie);
         } else {
-            $serie = str_pad($branch_store, 3, 0, STR_PAD_LEFT) . '-001-000000001';
+            $serie = str_pad($branch_store, 3, 0, STR_PAD_LEFT) . '-010-000000001';
         }
 
         return $serie;

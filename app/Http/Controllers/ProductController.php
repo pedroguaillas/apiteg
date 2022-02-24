@@ -29,14 +29,20 @@ class ProductController extends Controller
         return ProductResources::collection($products->paginate());
     }
 
-    public function productlist(Request $request)
+    public function productlist(Request $request = null)
     {
         $auth = Auth::user();
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
         $branch = $company->branches->first();
 
-        $search = $request->search;
+        $search = '';
+        $paginate = 15;
+
+        if ($request) {
+            $search = $request->search;
+            $paginate = $request->has('paginate') ? $request->paginate : $paginate;
+        }
 
         $products = Product::leftJoin('categories', 'categories.id', 'category_id')
             ->leftJoin('unities', 'unities.id', 'unity_id')
@@ -47,7 +53,7 @@ class ProductController extends Controller
             })
             ->select('products.*', 'categories.category', 'unities.unity');
 
-        return ProductResources::collection($products->paginate());
+        return ProductResources::collection($products->paginate($paginate));
     }
 
     public function create()
