@@ -9,6 +9,7 @@ use App\Http\Resources\OrderResources;
 use App\Http\Resources\ProductResources;
 use Illuminate\Http\Request;
 use App\Order;
+use App\OrderAditional;
 use App\OrderItem;
 use App\Product;
 use Illuminate\Support\Facades\Auth;
@@ -64,20 +65,6 @@ class OrderController extends Controller
         ]);
     }
 
-    // public function create()
-    // {
-    //     $auth = Auth::user();
-    //     $level = $auth->companyusers->first();
-    //     $company = Company::find($level->level_id);
-    //     $branch = $company->branches->first();
-
-    //     return response()->json([
-    //         'products' => $branch->products,
-    //         'customers' => $branch->customers,
-    //         'series' => $this->getSeries($branch)
-    //     ]);
-    // }
-
     private function getSeries($branch)
     {
         $branch_id = $branch->id;
@@ -132,7 +119,9 @@ class OrderController extends Controller
         $company = Company::find($level->level_id);
         $branch = $company->branches->first();
 
-        if ($order = $branch->orders()->create($request->except(['products', 'send']))) {
+        if ($order = $branch->orders()->create($request->except(['products', 'send', 'aditionals']))) {
+
+            // Registro de los Items de la Orden
             $products = $request->get('products');
 
             if (count($products) > 0) {
@@ -146,10 +135,24 @@ class OrderController extends Controller
                     ];
                 }
                 $order->orderitems()->createMany($array);
+            }
 
-                if ($request->get('send')) {
-                    (new OrderXmlController())->xml($order->id);
+            // Registro de la Informacion Adicional de la Orden
+            $aditionals = $request->get('aditionals');
+
+            if (count($aditionals) > 0) {
+                $array = [];
+                foreach ($aditionals as $aditional) {
+                    $array[] = [
+                        'name' => $aditional['name'],
+                        'description' => $aditional['description']
+                    ];
                 }
+                $order->orderaditionals()->createMany($array);
+            }
+
+            if ($request->get('send')) {
+                (new OrderXmlController())->xml($order->id);
             }
         }
     }
@@ -173,6 +176,8 @@ class OrderController extends Controller
             ->where('order_id', $order->id)
             ->get();
 
+        $orderaditionals = OrderAditional::where('order_id', $order->id)->get();
+
         $customers = Customer::where('id', $order->customer_id)->get();
 
         return response()->json([
@@ -180,6 +185,7 @@ class OrderController extends Controller
             'customers' => CustomerResources::collection($customers),
             'order' => $order,
             'order_items' => $orderitems,
+            'order_aditionals' => $orderaditionals,
             'series' => $this->getSeries($branch)
         ]);
     }
@@ -196,13 +202,15 @@ class OrderController extends Controller
             ->where('order_items.order_id', $id)
             ->get();
 
+        $orderaditionals = OrderAditional::where('order_id', $id)->get();
+
         $auth = Auth::user();
         $level = $auth->companyusers->first();
         $company = Company::find($level->level_id);
 
         switch ($movement->voucher_type) {
             case 1:
-                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items'));
+                $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items', 'orderaditionals'));
                 break;
             case 4:
                 $pdf = PDF::loadView('vouchers/creditnote', compact('movement', 'company', 'movement_items'));
@@ -216,7 +224,9 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
 
-        if ($order->update($request->except(['id', 'products', 'send']))) {
+        if ($order->update($request->except(['id', 'products', 'send', 'aditionals']))) {
+
+            // Actualizar los Items de la Orden
             $products = $request->get('products');
 
             if (count($products) > 0) {
@@ -231,6 +241,21 @@ class OrderController extends Controller
                 }
                 OrderItem::where('order_id', $order->id)->delete();
                 $order->orderitems()->createMany($array);
+            }
+
+            // Actualizar la Informacion Adicional de la Orden
+            $aditionals = $request->get('aditionals');
+
+            if (count($aditionals) > 0) {
+                $array = [];
+                foreach ($aditionals as $aditional) {
+                    $array[] = [
+                        'name' => $aditional['name'],
+                        'description' => $aditional['description']
+                    ];
+                }
+                OrderAditional::where('order_id', $order->id)->delete();
+                $order->orderaditionals()->createMany($array);
             }
         }
     }

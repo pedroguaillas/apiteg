@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Company;
 use App\Order;
+use App\OrderAditional;
 use App\OrderItem;
 use App\StaticClasses\VoucherStates;
 
@@ -276,6 +277,18 @@ class OrderXmlController extends Controller
             $string .= "</detalle>";
         }
         $string .= '</detalles>';
+
+        $orderaditionals = OrderAditional::where('order_id', $order->id)->get();
+
+        if (count($orderaditionals)) {
+            $string .= '<infoAdicional>';
+
+            foreach ($orderaditionals as $orderaditional) {
+                $string .= '<campoAdicional nombre="' . $orderaditional->name . '">' . $orderaditional->description . '</campoAdicional>';
+            }
+
+            $string .= '</infoAdicional>';
+        }
 
         $string .= '</factura>';
 
