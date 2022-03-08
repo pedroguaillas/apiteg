@@ -213,7 +213,7 @@ class OrderController extends Controller
                 $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items', 'orderaditionals'));
                 break;
             case 4:
-                $pdf = PDF::loadView('vouchers/creditnote', compact('movement', 'company', 'movement_items'));
+                $pdf = PDF::loadView('vouchers/creditnote', compact('movement', 'company', 'movement_items', 'orderaditionals'));
                 break;
         }
 

@@ -65,7 +65,7 @@
     <tbody>
         <tr>
             <td>
-                @include('vouchers.theme.aditionalinformation')
+                @include('vouchers.theme.adiinfopayment')
             </td>
             <td>@include('vouchers.theme.total')</td>
         </tr>
