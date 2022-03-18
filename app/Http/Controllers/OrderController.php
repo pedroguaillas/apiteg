@@ -210,6 +210,9 @@ class OrderController extends Controller
 
         switch ($movement->voucher_type) {
             case 1:
+                // $pdf = PDF::loadView('vouchers/testinvoice', compact('movement', 'company', 'movement_items', 'orderaditionals'));
+                // $pdf->setPaper('A7', 'portrait');
+                // $pdf->setPaper(array(0, 0, 396, 1002), 'portrait');
                 $pdf = PDF::loadView('vouchers/invoice', compact('movement', 'company', 'movement_items', 'orderaditionals'));
                 break;
             case 4:

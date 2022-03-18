@@ -66,12 +66,10 @@ class ProductController extends Controller
         $unities = Unity::where('branch_id', $branch->id)->get();
         $categories = Category::where('branch_id', $branch->id)->get();
         //Falta restringir que el plan de cuentas sea solo de esa compania
-        $accounts = ChartAccount::where('type', $company->type)->get();
 
         return response()->json([
             'unities' => $unities,
             'categories' => $categories,
-            'accounts' => $accounts
         ]);
     }
 
@@ -83,7 +81,6 @@ class ProductController extends Controller
         $branch = $company->branches->first();
 
         try {
-            // $product = Product::create($request->all());
             $product = $branch->products()->create($request->all());
         } catch (\Illuminate\Database\QueryException $e) {
             $errorCode = $e->errorInfo[1];
@@ -153,6 +150,14 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
-        $product->update($request->all());
+
+        try {
+            $product->update($request->all());
+        } catch (\Illuminate\Database\QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                return response()->json(['message' => 'KEY_DUPLICATE'], 405);
+            }
+        }
     }
 }

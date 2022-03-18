@@ -54,7 +54,8 @@ class CustomerController extends Controller
         $company = Company::find($level->level_id);
 
         try {
-            $company->branches->first()->customers()->create($request->all());
+            $customer = $company->branches->first()->customers()->create($request->all());
+            return response()->json(['customer' => $customer]);
         } catch (\Illuminate\Database\QueryException $e) {
             $errorCode = $e->errorInfo[1];
             if ($errorCode == 1062) {
