@@ -80,9 +80,9 @@ class OrderXmlController extends Controller
         // Si existe el certificado electronico y se ha creado Xml
         if ($company->cert_dir !== null && file_exists(Storage::path($folder . $file))) {
             // $public_path = '\';
-            // $public_path = '/var/www/apiteg';
+            $public_path = '/var/www/apiteg';
             //Local --------------------------
-            $public_path = 'D:\apps\project\apiteg';
+            // $public_path = 'D:\apps\project\apiteg';
 
             $cert = Storage::path('cert' . DIRECTORY_SEPARATOR . $company->cert_dir);
 
@@ -367,7 +367,6 @@ class OrderXmlController extends Controller
         $string .= '<secuencial>' . substr($serie, 6, 9) . '</secuencial>';
         $string .= '<dirMatriz>' . $branch->address . '</dirMatriz>';
         
-
         if ((int)$voucher_type === 1) {
             $string .= (int)$company->micro_business === 1 ? '<regimenMicroempresas>CONTRIBUYENTE RÉGIMEN MICROEMPRESAS</regimenMicroempresas>' : null;
             $string .= (int)$company->retention_agent === 1 ? '<agenteRetencion>1</agenteRetencion>' : null;
