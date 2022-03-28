@@ -112,6 +112,23 @@ class OrderXmlController extends Controller
     private function creditNote($order, $company, $order_items)
     {
         $buyer_id = $order->identication;
+
+        $typeId = '';
+        switch ($order->type_identification) {
+            case 'ruc':
+                $typeId = '04';
+                break;
+            case 'cédula':
+                $typeId = '05';
+                break;
+            case 'pasaporte':
+                $typeId = '06';
+                break;
+            case 'cf':
+                $typeId = '07';
+                break;
+        }
+
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
         $string .= '<notaCredito id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
@@ -122,7 +139,7 @@ class OrderXmlController extends Controller
 
         $date = new \DateTime($order->date);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
-        $string .= '<tipoIdentificacionComprador>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionComprador>';
+        $string .= "<tipoIdentificacionComprador>$typeId</tipoIdentificacionComprador>";
         $string .= "<razonSocialComprador>$order->name</razonSocialComprador>";
         $string .= "<identificacionComprador>$buyer_id</identificacionComprador>";
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
