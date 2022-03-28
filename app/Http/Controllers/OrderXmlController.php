@@ -32,7 +32,7 @@ class OrderXmlController extends Controller
         }
 
         $order = Order::join('customers AS c', 'c.id', 'orders.customer_id')
-            ->select('c.identication', 'c.name', 'c.address', 'c.phone', 'c.email', 'orders.*')
+            ->select('c.identication', 'c.name', 'c.address', 'c.phone', 'c.email', 'c.type_identification', 'orders.*')
             ->where('orders.id', $id)
             ->first();
 
@@ -201,6 +201,23 @@ class OrderXmlController extends Controller
     private function invoice($order, $company, $order_items)
     {
         $buyer_id = $order->identication;
+
+        $typeId = '';
+        switch ($order->type_identification) {
+            case 'ruc':
+                $typeId = '04';
+                break;
+            case 'cédula':
+                $typeId = '05';
+                break;
+            case 'pasaporte':
+                $typeId = '06';
+                break;
+            case 'cf':
+                $typeId = '07';
+                break;
+        }
+
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
         $string .= '<factura id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
@@ -211,7 +228,7 @@ class OrderXmlController extends Controller
         $date = new \DateTime($order->date);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
-        $string .= '<tipoIdentificacionComprador>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionComprador>';
+        $string .= "<tipoIdentificacionComprador>$typeId</tipoIdentificacionComprador>";
         $string .= $order->guia !== null ? '<guiaRemision>' . $order->guia . '</guiaRemision>' : null;
         $string .= '<razonSocialComprador>' . $order->name . '</razonSocialComprador>';
         $string .= '<identificacionComprador>' . $buyer_id . '</identificacionComprador>';
@@ -366,7 +383,7 @@ class OrderXmlController extends Controller
         $string .= '<ptoEmi>' . substr($serie, 3, 3) . '</ptoEmi>';
         $string .= '<secuencial>' . substr($serie, 6, 9) . '</secuencial>';
         $string .= '<dirMatriz>' . $branch->address . '</dirMatriz>';
-        
+
         if ((int)$voucher_type === 1) {
             $string .= (int)$company->micro_business === 1 ? '<regimenMicroempresas>CONTRIBUYENTE RÉGIMEN MICROEMPRESAS</regimenMicroempresas>' : null;
             $string .= (int)$company->retention_agent === 1 ? '<agenteRetencion>1</agenteRetencion>' : null;
