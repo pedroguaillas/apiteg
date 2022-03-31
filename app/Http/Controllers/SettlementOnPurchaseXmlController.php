@@ -31,7 +31,7 @@ class SettlementOnPurchaseXmlController extends Controller
         }
 
         $shop = Shop::join('providers AS p', 'p.id', 'shops.provider_id')
-            ->select('p.identication', 'p.name', 'p.address', 'p.phone', 'p.email', 'shops.*')
+            ->select('p.identication', 'p.name', 'p.address', 'p.type_identification', 'shops.*')
             ->where('shops.id', $id)
             ->first();
 
@@ -101,6 +101,17 @@ class SettlementOnPurchaseXmlController extends Controller
     private function purchasesettlement($sale, $company, $sale_items)
     {
         $buyer_id = $sale->identication;
+
+        $typeId = '';
+        switch ($sale->type_identification) {
+            case 'cédula':
+                $typeId = '05';
+                break;
+            case 'pasaporte':
+                $typeId = '06';
+                break;
+        }
+
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
         $string .= '<liquidacionCompra id="comprobante" version="1.' . ($company->decimal > 2 ? 1 : 0) . '.0">';
@@ -112,24 +123,23 @@ class SettlementOnPurchaseXmlController extends Controller
         $date = new \DateTime($sale->date);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
         // $string .= '<dirEstablecimiento>null</dirEstablecimiento>';
-        $string .= $company->special !== null ? '<contribuyenteEspecial>' . $company->special . '</contribuyenteEspecial>' : null;
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
-        $string .= '<tipoIdentificacionProveedor>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionProveedor>';
-        $string .= '<razonSocialProveedor>' . $sale->name . '</razonSocialProveedor>';
-        $string .= '<identificacionProveedor>' . $buyer_id . '</identificacionProveedor>';
+        $string .= "<tipoIdentificacionProveedor>$typeId</tipoIdentificacionProveedor>";
+        $string .= "<razonSocialProveedor>$sale->name</razonSocialProveedor>";
+        $string .= "<identificacionProveedor>$buyer_id</identificacionProveedor>";
         // $string .= '<direccionProveedor>' . $sale->address . '</direccionProveedor>';
-        $string .= '<totalSinImpuestos>' . $sale->sub_total . '</totalSinImpuestos>';
-        $string .= '<totalDescuento>' . $sale->discount . '</totalDescuento>';
+        $string .= "<totalSinImpuestos>$sale->sub_total</totalSinImpuestos>";
+        $string .= "<totalDescuento>$sale->discount</totalDescuento>";
 
         // Aplied only tax to IVA, NOT aplied to IRBPNR % Imp. al Cons Esp, require add
         $string .= '<totalConImpuestos>';
         foreach ($this->grupingTaxes($sale_items) as $tax) {
             $string .= "<totalImpuesto>";
             $string .= "<codigo>2</codigo>";    // Aplied only tax to IVA
-            $string .= "<codigoPorcentaje>" . $tax->percentageCode . "</codigoPorcentaje>";
-            $string .= "<baseImponible>" . $tax->base . "</baseImponible>";
-            $string .= "<tarifa>" . $tax->percentage . "</tarifa>";
-            $string .= "<valor>" . $tax->value . "</valor>";
+            $string .= "<codigoPorcentaje>$tax->percentageCode</codigoPorcentaje>";
+            $string .= "<baseImponible>$tax->base</baseImponible>";
+            $string .= "<tarifa>$tax->percentage</tarifa>";
+            $string .= "<valor>$tax->value</valor>";
             $string .= "</totalImpuesto>";
         }
         $string .= '</totalConImpuestos>';
@@ -140,8 +150,8 @@ class SettlementOnPurchaseXmlController extends Controller
         $string .= '<pagos>';
         $string .= '<pago>';
         $string .= '<formaPago>20</formaPago>';
-        $string .= '<total>' . $sale->total . '</total>';
-        $string .= '<plazo>' . $sale->total . '</plazo>';
+        $string .= "<total>$sale->total</total>";
+        $string .= "<plazo>$sale->total</plazo>";
         $string .= '</pago>';
         $string .= '</pagos>';
 
@@ -256,8 +266,10 @@ class SettlementOnPurchaseXmlController extends Controller
         $string .= '<ptoEmi>' . substr($serie, 3, 3) . '</ptoEmi>';
         $string .= '<secuencial>' . substr($serie, 6, 9) . '</secuencial>';
         $string .= '<dirMatriz>' . $branch->address . '</dirMatriz>';
-        $string .= (int)$company->micro_business === 1 ? '<regimenMicroempresas>CONTRIBUYENTE RÉGIMEN MICROEMPRESAS</regimenMicroempresas>' : null;
+
         $string .= (int)$company->retention_agent === 1 ? '<agenteRetencion>1</agenteRetencion>' : null;
+        $string .= (int)$company->rimpe === 1 ? '<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>' : null;
+
         $string .= '</infoTributaria>';
 
         return $string;

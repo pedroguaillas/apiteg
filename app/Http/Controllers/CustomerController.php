@@ -73,7 +73,15 @@ class CustomerController extends Controller
     public function update(Request $request, int $id)
     {
         $customer = Customer::findOrFail($id);
-        $customer->update($request->all());
+
+        try {
+            $customer->update($request->all());
+        } catch (\Illuminate\Database\QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                return response()->json(['message' => 'KEY_DUPLICATE'], 405);
+            }
+        }
     }
 
     public function importCsv(Request $request)

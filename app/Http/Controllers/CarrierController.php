@@ -11,11 +11,6 @@ use App\Http\Resources\CarrierResources;
 class CarrierController extends Controller
 {
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $auth = Auth::user();
@@ -28,12 +23,31 @@ class CarrierController extends Controller
         return CarrierResources::collection($carriers->paginate());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    public function carrierlist(Request $request = null)
+    {
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $search = '';
+        $paginate = 15;
+
+        if ($request) {
+            $search = $request->search;
+            $paginate = $request->has('paginate') ? $request->paginate : $paginate;
+        }
+
+        $carriers = Carrier::where('branch_id', $branch->id)
+            ->where(function ($query) use ($search) {
+                return $query->where('identication', 'LIKE', "%$search%")
+                    ->orWhere('name', 'LIKE', "%$search%");
+            })
+            ->orderBy('created_at', 'DESC');
+
+        return CarrierResources::collection($carriers->paginate($paginate));
+    }
+
     public function store(Request $request)
     {
         $auth = Auth::user();
@@ -41,7 +55,8 @@ class CarrierController extends Controller
         $company = Company::find($level->level_id);
 
         try {
-            $company->branches->first()->carriers()->create($request->all());
+            $carrier = $company->branches->first()->carriers()->create($request->all());
+            return response()->json(['carrier' => $carrier]);
         } catch (\Illuminate\Database\QueryException $e) {
             $errorCode = $e->errorInfo[1];
             if ($errorCode == 1062) {
@@ -59,6 +74,14 @@ class CarrierController extends Controller
     public function update(Request $request, int $id)
     {
         $carrier = Carrier::findOrFail($id);
-        $carrier->update($request->all());
+
+        try {
+            $carrier->update($request->all());
+        } catch (\Illuminate\Database\QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                return response()->json(['message' => 'KEY_DUPLICATE'], 405);
+            }
+        }
     }
 }

@@ -143,12 +143,17 @@ class OrderController extends Controller
             if (count($aditionals) > 0) {
                 $array = [];
                 foreach ($aditionals as $aditional) {
-                    $array[] = [
-                        'name' => $aditional['name'],
-                        'description' => $aditional['description']
-                    ];
+                    if (($aditional['name'] !== null && $aditional['name'] !== '') && ($aditional['description'] !== null && $aditional['description'] !== '')) {
+                        $array[] = [
+                            'name' => $aditional['name'],
+                            'description' => $aditional['description']
+                        ];
+                    }
                 }
-                $order->orderaditionals()->createMany($array);
+
+                if (count($array)) {
+                    $order->orderaditionals()->createMany($array);
+                }
             }
 
             if ($request->get('send')) {
@@ -249,16 +254,24 @@ class OrderController extends Controller
             // Actualizar la Informacion Adicional de la Orden
             $aditionals = $request->get('aditionals');
 
+            // Eliminar todos los registros de informacion adicional
+            OrderAditional::where('order_id', $order->id)->delete();
+
             if (count($aditionals) > 0) {
                 $array = [];
+
                 foreach ($aditionals as $aditional) {
-                    $array[] = [
-                        'name' => $aditional['name'],
-                        'description' => $aditional['description']
-                    ];
+                    if (($aditional['name'] !== null && $aditional['name'] !== '') && ($aditional['description'] !== null && $aditional['description'] !== '')) {
+                        $array[] = [
+                            'name' => $aditional['name'],
+                            'description' => $aditional['description']
+                        ];
+                    }
                 }
-                OrderAditional::where('order_id', $order->id)->delete();
-                $order->orderaditionals()->createMany($array);
+
+                if (count($array)) {
+                    $order->orderaditionals()->createMany($array);
+                }
             }
         }
     }

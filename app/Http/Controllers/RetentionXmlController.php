@@ -97,6 +97,20 @@ class RetentionXmlController extends Controller
     private function retention($shop, $company)
     {
         $buyer_id = $shop->identication;
+
+        $typeId = '';
+        switch ($shop->type_identification) {
+            case 'ruc':
+                $typeId = '04';
+                break;
+            case 'cédula':
+                $typeId = '05';
+                break;
+            case 'pasaporte':
+                $typeId = '06';
+                break;
+        }
+
         $string = '';
         $string .= '<?xml version="1.0" encoding="UTF-8"?>';
         $string .= '<comprobanteRetencion id="comprobante" version="1.0.0">';
@@ -108,9 +122,9 @@ class RetentionXmlController extends Controller
         $date = new \DateTime($shop->date_retention);
         $string .= '<fechaEmision>' . $date->format('d/m/Y') . '</fechaEmision>';
         $string .= '<obligadoContabilidad>' . ($company->accounting ? 'SI' : 'NO') . '</obligadoContabilidad>';
-        $string .= '<tipoIdentificacionSujetoRetenido>' . (strlen($buyer_id) === 13 ? '04' : '05') . '</tipoIdentificacionSujetoRetenido>';
-        $string .= '<razonSocialSujetoRetenido>' . $shop->name . '</razonSocialSujetoRetenido>';
-        $string .= '<identificacionSujetoRetenido>' . $buyer_id . '</identificacionSujetoRetenido>';
+        $string .= "<tipoIdentificacionSujetoRetenido>$typeId</tipoIdentificacionSujetoRetenido>";
+        $string .= "<razonSocialSujetoRetenido>$shop->name</razonSocialSujetoRetenido>";
+        $string .= "<identificacionSujetoRetenido>$buyer_id</identificacionSujetoRetenido>";
         $string .= '<periodoFiscal>' . $date->format('m/Y') . '</periodoFiscal>';
 
         $string .= '</infoCompRetencion>';
@@ -154,20 +168,21 @@ class RetentionXmlController extends Controller
 
         $string = '';
         $string .= '<infoTributaria>';
-        $string .= '<ambiente>' . $company->enviroment_type . '</ambiente>';
+        $string .= "<ambiente>$company->enviroment_type</ambiente>";
         $string .= '<tipoEmision>1</tipoEmision>';
-        $string .= '<razonSocial>' . $company->company . '</razonSocial>';
-        $string .= $branch->name !== null ? '<nombreComercial>' . $branch->name . '</nombreComercial>' : null;
-        $string .= '<ruc>' . $company->ruc . '</ruc>';
+        $string .= "<razonSocial>'$company->company</razonSocial>";
+        $string .= $branch->name !== null ? "<nombreComercial>$branch->name</nombreComercial>" : null;
+        $string .= "<ruc>$company->ruc</ruc>";
         $string .= '<claveAcceso>' . $keyaccess . $this->generaDigitoModulo11($keyaccess) . '</claveAcceso>';
-        $string .= '<codDoc>' . $voucher_type . '</codDoc>';
+        $string .= "<codDoc>$voucher_type</codDoc>";
         $string .= '<estab>' . substr($serie, 0, 3) . '</estab>';
         $string .= '<ptoEmi>' . substr($serie, 3, 3) . '</ptoEmi>';
         $string .= '<secuencial>' . substr($serie, 6, 9) . '</secuencial>';
-        $string .= '<dirMatriz>' . $branch->address . '</dirMatriz>';
-        $string .= (int)$company->micro_business === 1 ? '<regimenMicroempresas>CONTRIBUYENTE RÉGIMEN MICROEMPRESAS</regimenMicroempresas>' : null;
+        $string .= "<dirMatriz>$branch->address</dirMatriz>";
+
         $string .= (int)$company->retention_agent === 1 ? '<agenteRetencion>1</agenteRetencion>' : null;
         $string .= (int)$company->rimpe === 1 ? '<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>' : null;
+
         $string .= '</infoTributaria>';
 
         return $string;

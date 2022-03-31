@@ -32,7 +32,7 @@ class OrderXmlController extends Controller
         }
 
         $order = Order::join('customers AS c', 'c.id', 'orders.customer_id')
-            ->select('c.identication', 'c.name', 'c.address', 'c.phone', 'c.email', 'c.type_identification', 'orders.*')
+            ->select('c.identication', 'c.name', 'c.address', 'c.type_identification', 'orders.*')
             ->where('orders.id', $id)
             ->first();
 
@@ -49,10 +49,6 @@ class OrderXmlController extends Controller
             case 4:
                 $str_xml_voucher = $this->creditNote($order, $company, $order_items);
                 break;
-                // case 5:
-                //     // Nota de credito generar xml
-                //     $str_xml_voucher = $this->creditNote($order, $company, $order_items);
-                //     break;
         }
 
         $this->sign($company, $order, $str_xml_voucher);
@@ -123,9 +119,6 @@ class OrderXmlController extends Controller
                 break;
             case 'pasaporte':
                 $typeId = '06';
-                break;
-            case 'cf':
-                $typeId = '07';
                 break;
         }
 
@@ -401,11 +394,8 @@ class OrderXmlController extends Controller
         $string .= '<secuencial>' . substr($serie, 6, 9) . '</secuencial>';
         $string .= '<dirMatriz>' . $branch->address . '</dirMatriz>';
 
-        if ((int)$voucher_type === 1) {
-            $string .= (int)$company->micro_business === 1 ? '<regimenMicroempresas>CONTRIBUYENTE RÉGIMEN MICROEMPRESAS</regimenMicroempresas>' : null;
-            $string .= (int)$company->retention_agent === 1 ? '<agenteRetencion>1</agenteRetencion>' : null;
-            $string .= (int)$company->rimpe === 1 ? '<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>' : null;
-        }
+        $string .= (int)$company->retention_agent === 1 ? '<agenteRetencion>1</agenteRetencion>' : null;
+        $string .= (int)$company->rimpe === 1 ? '<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>' : null;
 
         $string .= '</infoTributaria>';
 

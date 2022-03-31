@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Company;
+use App\Http\Resources\ProductResources;
+use App\Http\Resources\ProviderResources;
 use App\Http\Resources\ShopResources;
 use App\ShopRetentionItem;
 use App\Product;
+use App\Provider;
 use App\Shop;
 use App\ShopItem;
 use App\Tax;
@@ -60,8 +63,6 @@ class ShopController extends Controller
         $branch = $company->branches->first();
 
         return response()->json([
-            'products' => $branch->products,
-            'providers' => $branch->providers,
             'taxes' => Tax::all(),
             'series' => $this->getSeries($branch)
         ]);
@@ -227,6 +228,11 @@ class ShopController extends Controller
 
         $shop = Shop::findOrFail($id);
 
+        $products = Product::join('shop_items AS si', 'product_id', 'products.id')
+            ->select('products.*')
+            ->where('shop_id', $id)
+            ->get();
+
         $shopitems = Product::join('shop_items AS si', 'si.product_id', 'products.id')
             ->select('products.iva', 'si.*')
             ->where('shop_id', $shop->id)
@@ -236,9 +242,11 @@ class ShopController extends Controller
         $shop->serie_retencion = ($shop->serie_retencion !== null) ? $shop->serie_retencion : $series['retention'];
         // $shop->date_retention = date('Y-m-d');
 
+        $providers = Provider::where('id', $shop->provider_id)->get();
+
         return response()->json([
-            'products' => $branch->products,
-            'providers' => $branch->providers,
+            'products' => ProductResources::collection($products),
+            'providers' => ProviderResources::collection($providers),
             'shop' => $shop,
             'shopitems' => $shopitems,
             'shopretentionitems' => $shop->shopretentionitems,

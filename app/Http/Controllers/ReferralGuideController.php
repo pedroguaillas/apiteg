@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Carrier;
 use App\Company;
+use App\Customer;
+use App\Http\Resources\CarrierResources;
+use App\Http\Resources\CustomerResources;
+use App\Http\Resources\ProductResources;
 use App\Http\Resources\ReferralGuideResources;
 use Illuminate\Http\Request;
 use App\Product;
@@ -13,11 +18,7 @@ use Barryvdh\DomPDF\Facade as PDF;
 
 class ReferralGuideController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $auth = Auth::user();
@@ -33,11 +34,6 @@ class ReferralGuideController extends Controller
         return ReferralGuideResources::collection($referralguide->paginate());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         $auth = Auth::user();
@@ -46,9 +42,6 @@ class ReferralGuideController extends Controller
         $branch = $company->branches->first();
 
         return response()->json([
-            'products' => $branch->products,
-            'customers' => $branch->customers,
-            'carriers' => $branch->carriers,
             'serie' => $this->getSeries($branch)
         ]);
     }
@@ -80,17 +73,12 @@ class ReferralGuideController extends Controller
             //convert Array to String
             $serie = implode("-", $serie);
         } else {
-            $serie = str_pad($branch_store, 3, 0, STR_PAD_LEFT) . '-001-000000001';
+            $serie = str_pad($branch_store, 3, 0, STR_PAD_LEFT) . '-010-000000001';
         }
 
         return $serie;
     }
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         $auth = Auth::user();
@@ -118,32 +106,29 @@ class ReferralGuideController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Voucher  $voucher
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
-        $auth = Auth::user();
-        $level = $auth->companyusers->first();
-        $company = Company::find($level->level_id);
-        $branch = $company->branches->first();
-
         $referralguide = ReferralGuide::findOrFail($id);
+
+        $products = Product::join('referral_guide_items AS rgi', 'product_id', 'products.id')
+            ->select('products.*')
+            ->where('referral_guide_id', $id)
+            ->get();
 
         $referralguide_items = Product::join('referral_guide_items AS rgi', 'product_id', 'products.id')
             ->select('products.iva', 'rgi.*')
-            ->where('referral_guide_id', $referralguide->id)
+            ->where('referral_guide_id', $id)
             ->get();
 
+        $customers = Customer::where('id', $referralguide->customer_id)->get();
+        $carriers = Carrier::where('id', $referralguide->carrier_id)->get();
+
         return response()->json([
-            'products' => $branch->products,
-            'customers' => $branch->customers,
-            'carriers' => $branch->carriers,
             'referralguide' => $referralguide,
-            'referralguide_items' => $referralguide_items
+            'referralguide_items' => $referralguide_items,
+            'customers' => CustomerResources::collection($customers),
+            'carriers' => CarrierResources::collection($carriers),
+            'products' => ProductResources::collection($products),
         ]);
     }
 
@@ -171,19 +156,14 @@ class ReferralGuideController extends Controller
         return $pdf->stream();
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Order  $order
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $referralguide = ReferralGuide::findOrFail($id);
 
         if ($referralguide->update($request->except(['products', 'send']))) {
             $products = $request->get('products');
+
+            ReferralGuideItem::where('referral_guide_id', $referralguide->id)->delete();
 
             if (count($products) > 0) {
                 $array = [];
@@ -193,20 +173,8 @@ class ReferralGuideController extends Controller
                         'quantity' => $product['quantity'],
                     ];
                 }
-                ReferralGuideItem::where('referral_guide_id', $referralguide->id)->delete();
                 $referralguide->referralguidetems()->createMany($array);
             }
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Voucher  $voucher
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }
