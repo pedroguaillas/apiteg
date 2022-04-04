@@ -106,6 +106,7 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('orders/download/{id}', 'OrderXmlController@download');
     $router->get('orders/sendsri/{id}', 'WSSriOrderController@send');
     $router->get('orders/authorize/{id}', 'WSSriOrderController@authorize');
+    $router->get('orders/cancel/{id}', 'WSSriOrderController@cancel');
 
     //shops
     $router->get('shops', 'ShopController@index');
