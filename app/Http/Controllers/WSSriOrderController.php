@@ -234,16 +234,13 @@ class WSSriOrderController
             return;
         }
 
-        var_dump($response->RespuestaAutorizacionComprobante);
-        // $autorizacion = $response->RespuestaAutorizacionComprobante->autorizaciones->autorizacion;
-
-        // if ($autorizacion->estado !== VoucherStates::AUTHORIZED) {
-        //     $order->state = VoucherStates::CANCELED;
-        //     $order->save();
-        //     response()->json(['state' => 'OK']);
-        // } else {
-        //     response()->json(['state' => 'KO']);
-        // }
+        if ((int)$response->RespuestaAutorizacionComprobante->numeroComprobantes === 0) {
+            $order->state = VoucherStates::CANCELED;
+            $order->save();
+            response()->json(['state' => 'OK']);
+        } else {
+            response()->json(['state' => 'KO']);
+        }
     }
 
     private function moveXmlFile($order, $newState)
