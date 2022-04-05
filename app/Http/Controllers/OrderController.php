@@ -17,21 +17,6 @@ use Barryvdh\DomPDF\Facade as PDF;
 
 class OrderController extends Controller
 {
-    public function index()
-    {
-        $auth = Auth::user();
-        $level = $auth->companyusers->first();
-        $company = Company::find($level->level_id);
-        $branch = $company->branches->first();
-
-        $orders = Order::join('customers AS c', 'c.id', 'customer_id')
-            ->select('orders.*', 'c.name')
-            ->where('c.branch_id', $branch->id)
-            ->orderBy('orders.created_at', 'DESC');
-
-        return OrderResources::collection($orders->paginate());
-    }
-
     public function orderlist(Request $request)
     {
         $auth = Auth::user();

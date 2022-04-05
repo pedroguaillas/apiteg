@@ -18,22 +18,6 @@ use Barryvdh\DomPDF\Facade as PDF;
 
 class ShopController extends Controller
 {
-
-    public function index()
-    {
-        $auth = Auth::user();
-        $level = $auth->companyusers->first();
-        $company = Company::find($level->level_id);
-        $branch = $company->branches->first();
-
-        $shops = Shop::join('providers AS p', 'p.id', 'provider_id')
-            ->select('shops.*', 'p.name')
-            ->where('p.branch_id', $branch->id)
-            ->orderBy('shops.created_at', 'DESC');
-
-        return ShopResources::collection($shops->paginate());
-    }
-
     public function shoplist(Request $request)
     {
         $auth = Auth::user();
@@ -183,39 +167,6 @@ class ShopController extends Controller
             if ($send_ret) {
                 (new RetentionXmlController())->xml($shop->id);
             }
-        }
-    }
-
-    public function duplicate(int $id)
-    {
-        $shop = Shop::find($id);
-
-        $newShop = Shop::create([
-            'branch_id' => $shop->branch_id,
-            'date' => $shop->date,
-            'description' => $shop->description,
-            'sub_total' => $shop->sub_total,
-            'serie' => $shop->serie,
-            'provider_id' => $shop->provider_id,
-            'doc_realeted' => $shop->doc_realeted,
-            'expiration_days' => $shop->expiration_days,
-            'no_iva' => $shop->no_iva,
-            'base0' => $shop->base0,
-            'base12' => $shop->base12,
-            'iva' => $shop->iva,
-            'discount' => $shop->discount,
-            'ice' => $shop->ice,
-            'total' => $shop->total,
-            'voucher_type' => $shop->voucher_type,
-            'paid' => $shop->paid,
-            'iva_retention' => $shop->iva_retention,
-            'rent_retention' => $shop->rent_retention
-        ]);
-
-        if ($newShop) {
-            return $this->index();
-        } else {
-            return response()->json(['msm' => 'No Duplicado']);
         }
     }
 

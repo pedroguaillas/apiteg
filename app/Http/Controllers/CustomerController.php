@@ -10,18 +10,6 @@ use App\Http\Resources\CustomerResources;
 
 class CustomerController extends Controller
 {
-    public function index()
-    {
-        $auth = Auth::user();
-        $level = $auth->companyusers->first();
-        $company = Company::find($level->level_id);
-        $branch = $company->branches->first();
-
-        $customers = Customer::where('branch_id', $branch->id);
-
-        return CustomerResources::collection($customers->paginate());
-    }
-
     public function customerlist(Request $request = null)
     {
         $auth = Auth::user();

@@ -15,7 +15,6 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-
 // $router->get('/key', function() {
 //     return \Illuminate\Support\Str::random(32);
 // });
@@ -83,7 +82,6 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     // End Account Entries .....
 
     //Products
-    $router->get('products', 'ProductController@index');
     $router->post('productlist', 'ProductController@productlist');
     $router->get('productscreate', 'ProductController@create');
     $router->post('products', 'ProductController@store');
@@ -92,7 +90,6 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->post('products_import', 'ProductController@import');
 
     //orders
-    $router->get('orders', 'OrderController@index');
     $router->post('orderlist', 'OrderController@orderlist');
     $router->get('orders/create', 'OrderController@create');
     $router->post('orders', 'OrderController@store');
@@ -109,11 +106,9 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('orders/cancel/{id}', 'WSSriOrderController@cancel');
 
     //shops
-    $router->get('shops', 'ShopController@index');
     $router->post('shoplist', 'ShopController@shoplist');
     $router->get('shops/create', 'ShopController@create');
     $router->post('shops', 'ShopController@store');
-    $router->get('shops/duplicate/{id}', 'ShopController@duplicate');
     $router->get('shops/{id}', 'ShopController@show');
     $router->put('shops/{id}', 'ShopController@update');
 
@@ -122,19 +117,19 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('shops/{id}/download', 'SettlementOnPurchaseXmlController@download');
     $router->get('shops/{id}/sendsri', 'WSSriSettlementOnPurchaseController@send');
     $router->get('shops/{id}/authorize', 'WSSriSettlementOnPurchaseController@authorize');
+    $router->get('shops/{id}/cancel', 'WSSriSettlementOnPurchaseController@cancel');
     $router->get('shops/{id}/pdf', 'ShopController@showPdf');
 
     //shops Import from txt
     $router->post('shops/import', 'ShopImportController@import');
-
-    //Retention Pdf
-    $router->get('retentions/pdf/{id}', 'ShopController@showPdfRetention');
 
     //Retention Xml
     $router->get('retentions/xml/{id}', 'RetentionXmlController@xml');
     $router->get('retentions/download/{id}', 'RetentionXmlController@download');
     $router->get('retentions/sendsri/{id}', 'WSSriRetentionController@sendSri');
     $router->get('retentions/authorize/{id}', 'WSSriRetentionController@authorize');
+    $router->get('retentions/cancel/{id}', 'WSSriRetentionController@cancel');
+    $router->get('retentions/pdf/{id}', 'ShopController@showPdfRetention');
 
     // Guias de remision
     $router->get('referralguides', 'ReferralGuideController@index');
@@ -151,7 +146,6 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->get('referralguides/authorize/{id}', 'WSSriReferralGuide@authorize');
 
     //Customers
-    $router->get('customers', 'CustomerController@index');
     $router->post('customerlist', 'CustomerController@customerlist');
     $router->post('customers', 'CustomerController@store');
     $router->get('customers/{id}/edit', 'CustomerController@edit');
@@ -159,14 +153,12 @@ $router->group(['middleware' => 'jwt.verify'], function ($router) {
     $router->post('customers_import_csv', 'CustomerController@importCsv');
 
     // Proveedores
-    $router->get('providers', 'ProviderController@index');
     $router->post('providerlist', 'ProviderController@providerlist');
     $router->post('providers', 'ProviderController@store');
     $router->get('providers/{id}/edit', 'ProviderController@edit');
     $router->put('providers/{id}', 'ProviderController@update');
 
     // Transportistas
-    $router->get('carriers', 'CarrierController@index');
     $router->post('carrierlist', 'CarrierController@carrierlist');
     $router->post('carriers', 'CarrierController@store');
     $router->get('carriers/{id}/edit', 'CarrierController@edit');

@@ -193,6 +193,57 @@ class WSSriSettlementOnPurchaseController
         return $dom->saveXML();
     }
 
+    public function cancel(int $id)
+    {
+        $order = Shop::find($id);
+        $environment = substr($order->xml, -30, 1);
+
+        // Obligar a que sea autorizado para anular
+        if ($order->state !== VoucherStates::AUTHORIZED) {
+            return;
+        }
+
+        switch ((int) $environment) {
+            case 1:
+                $wsdlAuthorization = 'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl';
+                break;
+            case 2:
+                $wsdlAuthorization = 'https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl';
+                break;
+        }
+
+        $options = array(
+            "soap_version" => SOAP_1_1,
+            // trace used for __getLastResponse return result in XML
+            "trace" => 1,
+            'connection_timeout' => 3,
+            // exceptions used for detect error in SOAP is_soap_fault
+            'exceptions' => 0
+        );
+
+        $soapClientValidation = new \SoapClient($wsdlAuthorization, $options);
+
+        // Parameters SOAP
+        $user_param = array(
+            'claveAccesoComprobante' => substr(substr($order->xml, -53), 0, 49)
+        );
+
+        $response = $soapClientValidation->autorizacionComprobante($user_param);
+
+        // Verificar si la peticion llego al SRI sino abandonar el proceso
+        if (!property_exists($response, 'RespuestaAutorizacionComprobante')) {
+            return;
+        }
+
+        if ((int)$response->RespuestaAutorizacionComprobante->numeroComprobantes === 0) {
+            $order->state = VoucherStates::CANCELED;
+            $order->save();
+            return response()->json(['state' => 'OK']);
+        } else {
+            return response()->json(['state' => 'KO']);
+        }
+    }
+
     private function moveXmlFile($order, $newState)
     {
         $xml = str_replace($order->state, $newState, $order->xml);

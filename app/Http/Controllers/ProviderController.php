@@ -10,18 +10,6 @@ use App\Provider;
 
 class ProviderController extends Controller
 {
-    public function index()
-    {
-        $auth = Auth::user();
-        $level = $auth->companyusers->first();
-        $company = Company::find($level->level_id);
-        $branch = $company->branches->first();
-
-        $providers = Provider::where('branch_id', $branch->id);
-
-        return ProviderResources::collection($providers->paginate());
-    }
-
     public function providerlist(Request $request = null)
     {
         $auth = Auth::user();

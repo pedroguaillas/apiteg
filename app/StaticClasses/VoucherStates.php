@@ -14,5 +14,5 @@ class VoucherStates
     const RETURNED      = 'DEVUELTA';
     const AUTHORIZED    = 'AUTORIZADO';
     const IN_PROCESS    = 'EN_PROCESO';
-    const CANCELED      = 'CANCELADO';
+    const CANCELED      = 'ANULADO';
 }

@@ -237,9 +237,9 @@ class WSSriOrderController
         if ((int)$response->RespuestaAutorizacionComprobante->numeroComprobantes === 0) {
             $order->state = VoucherStates::CANCELED;
             $order->save();
-            response()->json(['state' => 'OK']);
+            return response()->json(['state' => 'OK']);
         } else {
-            response()->json(['state' => 'KO']);
+            return response()->json(['state' => 'KO']);
         }
     }
 

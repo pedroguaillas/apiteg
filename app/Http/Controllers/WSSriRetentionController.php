@@ -198,6 +198,52 @@ class WSSriRetentionController
         return $dom->saveXML();
     }
 
+    public function cancel(int $id)
+    {
+        $shop = Shop::find($id);
+        $environment = substr($shop->xml_retention, -30, 1);
+
+        // Obligar a que sea autorizado para anular
+        if ($shop->state_retencion !== VoucherStates::AUTHORIZED) {
+            return;
+        }
+
+        switch ((int) $environment) {
+            case 1:
+                $wsdlAuthorization = 'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl';
+                break;
+            case 2:
+                $wsdlAuthorization = 'https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl';
+                break;
+        }
+
+        $options = array(
+            "soap_version" => SOAP_1_1,
+            // trace used for __getLastResponse return result in XML
+            "trace" => 1,
+            'connection_timeout' => 3,
+            // exceptions used for detect error in SOAP is_soap_fault
+            'exceptions' => 0
+        );
+
+        $soapClientValidation = new \SoapClient($wsdlAuthorization, $options);
+
+        // Parameters SOAP
+        $user_param = array(
+            'claveAccesoComprobante' => substr(substr($shop->xml_retention, -53), 0, 49)
+        );
+
+        $response = $soapClientValidation->autorizacionComprobante($user_param);
+
+        if ((int)$response->RespuestaAutorizacionComprobante->numeroComprobantes === 0) {
+            $shop->state_retencion = VoucherStates::CANCELED;
+            $shop->save();
+            return response()->json(['state' => 'OK']);
+        } else {
+            return response()->json(['state' => 'KO']);
+        }
+    }
+
     private function moveXmlFile($shop, $newState)
     {
         $xml = str_replace($shop->state_retencion, $newState, $shop->xml_retention);

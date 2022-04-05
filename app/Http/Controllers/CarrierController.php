@@ -10,19 +10,6 @@ use App\Http\Resources\CarrierResources;
 
 class CarrierController extends Controller
 {
-
-    public function index()
-    {
-        $auth = Auth::user();
-        $level = $auth->companyusers->first();
-        $company = Company::find($level->level_id);
-        $branch = $company->branches->first();
-
-        $carriers = Carrier::where('branch_id', $branch->id);
-
-        return CarrierResources::collection($carriers->paginate());
-    }
-
     public function carrierlist(Request $request = null)
     {
         $auth = Auth::user();

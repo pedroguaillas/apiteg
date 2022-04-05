@@ -13,22 +13,6 @@ use App\Unity;
 
 class ProductController extends Controller
 {
-
-    public function index()
-    {
-        $auth = Auth::user();
-        $level = $auth->companyusers->first();
-        $company = Company::find($level->level_id);
-        $branch = $company->branches->first();
-
-        $products = Product::leftJoin('categories', 'categories.id', 'products.category_id')
-            ->leftJoin('unities', 'unities.id', 'products.unity_id')
-            ->where('products.branch_id', $branch->id)
-            ->select('products.*', 'categories.category', 'unities.unity');
-
-        return ProductResources::collection($products->paginate());
-    }
-
     public function productlist(Request $request = null)
     {
         $auth = Auth::user();
