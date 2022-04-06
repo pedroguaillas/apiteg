@@ -1,16 +1,19 @@
-<div style="width: 360px; margin-top: 1.5em;">
-    <img src="{{ storage_path('app/logos/' .$company->logo_dir) }}" alt="Logo" style="width: auto; height: 125px;" />
-    <table>
+<div style="width: 365px;">
+    <div class="parent-img">
+        <img src="{{ storage_path('app/logos/' .$company->logo_dir) }}" alt="Logo" style="width: auto; height: 125px;" />
+    </div>
+    <table style="margin-top: .5em;">
         <tbody class="widthboder">
             <tr>
                 <th class="relleno" colspan="3">{{ $company->company }}</th>
             </tr>
+            @if($company->branches[0]->name !== null)
+            <tr>
+                <th class="relleno" colspan="3">{{ $company->branches[0]->name }}</th>
+            </tr>
+            @endif
             <tr>
                 <td class="relleno">Dirección matriz</td>
-                <td class="align-middle" colspan="2">{{ $company->branches[0]->address }}</td>
-            </tr>
-            <tr>
-                <td class="relleno">Dirección sucursal</td>
                 <td class="align-middle" colspan="2">{{ $company->branches[0]->address }}</td>
             </tr>
             <tr>

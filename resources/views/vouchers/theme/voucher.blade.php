@@ -86,6 +86,10 @@
             border: 1px solid #888;
             padding: 5px;
         }
+
+        .parent-img {
+            text-align: center;
+        }
     </style>
 </head>
 

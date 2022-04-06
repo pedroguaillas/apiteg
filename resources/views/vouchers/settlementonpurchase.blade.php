@@ -56,7 +56,6 @@
     <tbody>
         <tr>
             <td style="width: 350px;">
-                <!-- @include('vouchers.theme.additionalinformation') -->
                 @include('vouchers.theme.payment')
             </td>
             <td>@include('vouchers.theme.total')</td>

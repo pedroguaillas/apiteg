@@ -59,17 +59,21 @@ class ShopController extends Controller
         $set_purchase = Shop::select('serie')
             ->where([
                 ['branch_id', $branch_id], // De la sucursal específico
-                ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
+                // ['state', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 ['voucher_type', 3] // 3-Liquidacion-de-compra
-            ])->orderBy('created_at', 'desc') // Para traer el ultimo
+            ])
+            ->whereIn('state', ['AUTORIZADO', 'ANULADO'])
+            ->orderBy('created_at', 'desc') // Para traer el ultimo
             ->first();
 
         $retention = Shop::select('serie_retencion AS serie')
             ->where([
                 ['branch_id', $branch_id], // De la sucursal específico
-                ['state_retencion', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
+                // ['state_retencion', 'AUTORIZADO'], // El estado debe ser AUTORIZADO pero por el momento solo que este FIRMADO
                 // ['voucher_type', 3] // 3-Liquidacion-de-compra
-            ])->orderBy('created_at', 'desc') // Para traer el ultimo
+            ])
+            ->whereIn('state_retencion', ['AUTORIZADO', 'ANULADO'])
+            ->orderBy('created_at', 'desc') // Para traer el ultimo
             ->first();
 
         $new_obj = [
