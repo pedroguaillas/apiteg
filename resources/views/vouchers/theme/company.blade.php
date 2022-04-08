@@ -2,10 +2,10 @@
     <div class="parent-img">
         <img src="{{ storage_path('app/logos/' .$company->logo_dir) }}" alt="Logo" style="width: auto; height: 125px;" />
     </div>
-    <table style="margin-top: .5em;">
+    <table style="margin-top: .5em; width: 375px;">
         <tbody class="widthboder">
             <tr>
-                <th class="relleno" colspan="3">{{ $company->company }}</th>
+                <td class="relleno" style="text-align: center;" colspan="3">{{ $company->company }}</td>
             </tr>
             @if($company->branches[0]->name !== null)
             <tr>

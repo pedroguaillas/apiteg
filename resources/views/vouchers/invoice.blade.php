@@ -27,7 +27,7 @@
 <tr>
     <td colspan="2">
         <table style="width: 100%; border-radius: 10px; margin-top: .5em;" class="table-collapse">
-            <thead>
+            <tbody>
                 <tr>
                     <th style="width: 5em;">Cod. Principal</th>
                     <th style="width: 4em;">Cant.</th>
@@ -36,9 +36,16 @@
                     <th style="width: 5em;">Descuento</th>
                     <th style="width: 5em;">Subtotal</th>
                 </tr>
-            </thead>
+            </tbody>
+        </table>
+    </td>
+</tr>
+<!-- No quitar esta tabla porque si no no hace salto de pagina -->
+@foreach($movement_items as $item)
+<tr>
+    <td colspan="2">
+        <table style="width: 100%;" class="table-collapse">
             <tbody>
-                @foreach($movement_items as $item)
                 <tr>
                     <td style="text-align: center; width: 5em;">{{ $item->code }}</td>
                     <td style="text-align: center; width: 4em;">{{ number_format($item->quantity, $company->decimal) }}</td>
@@ -47,18 +54,18 @@
                     <td style="text-align: right; width: 5em;">{{ number_format($item->discount, 2) }}</td>
                     <td style="text-align: right; width: 5em;">{{ number_format($item->quantity * $item->price, 2) }}</td>
                 </tr>
-                @endforeach
             </tbody>
         </table>
     </td>
 </tr>
+@endforeach
 @endsection
 
 @section('footer')
 <table style="width: 100%;">
     <tbody>
         <tr>
-            <td style="width: 350px;">
+            <td>
                 @include('vouchers.theme.adiinfopayment')
             </td>
             <td>@include('vouchers.theme.total')</td>
