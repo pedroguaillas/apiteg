@@ -2,7 +2,7 @@
     <div class="parent-img">
         <img src="{{ storage_path('app/logos/' .$company->logo_dir) }}" alt="Logo" style="width: auto; height: 125px;" />
     </div>
-    <table style="margin-top: .5em; width: 375px;">
+    <table style="margin-top: .5em; width: 370px;">
         <tbody class="widthboder">
             <tr>
                 <td class="relleno" style="text-align: center;" colspan="3">{{ $company->company }}</td>
@@ -13,7 +13,7 @@
             </tr>
             @endif
             <tr>
-                <td class="relleno">Dirección matriz</td>
+                <td class="relleno">Dirección</td>
                 <td class="align-middle" colspan="2">{{ $company->branches[0]->address }}</td>
             </tr>
             <tr>
@@ -22,11 +22,6 @@
             </tr>
             @if($movement->voucher_type!==4)
 
-            @if($company->micro_business)
-            <tr>
-                <td style="text-align: left;" class="relleno" colspan="3">CONTRIBUYENTE RÉGIMEN MICROEMPRESAS</td>
-            </tr>
-            @endif
             @if($company->retention_agent)
             <tr>
                 <td class="relleno" colspan="2">Agente de Retención Resolución No.</td>
