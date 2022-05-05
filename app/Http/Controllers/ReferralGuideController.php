@@ -29,7 +29,8 @@ class ReferralGuideController extends Controller
         $referralguide = ReferralGuide::join('carriers AS ca', 'ca.id', 'carrier_id')
             ->join('customers AS c', 'c.id', 'customer_id')
             ->select('referral_guides.*', 'c.name', 'ca.name AS carrier_name')
-            ->where('c.branch_id', $branch->id);
+            ->where('c.branch_id', $branch->id)
+            ->orderBy('referral_guides.created_at', 'DESC');
 
         return ReferralGuideResources::collection($referralguide->paginate());
     }

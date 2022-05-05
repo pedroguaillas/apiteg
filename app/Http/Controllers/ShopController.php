@@ -15,6 +15,7 @@ use App\Tax;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade as PDF;
+use PHPUnit\Framework\Constraint\Count;
 
 class ShopController extends Controller
 {
@@ -112,6 +113,20 @@ class ShopController extends Controller
         $branch = $company->branches->first();
 
         $except = ['taxes', 'pay_methods', 'app_retention', 'send'];
+
+        // Inicio ... Validar que se anule la retencion anterior
+        $shop_verfiy = Shop::where([
+            ['branch_id', $branch->id],
+            ['serie', $request->serie],
+            ['state_retencion', 'AUTORIZADO'],
+            ['authorization', $request->authorization],
+            ['provider_id', $request->provider_id]
+        ])->get();
+
+        if (Count($shop_verfiy)) {
+            return response()->json(['message' => 'RETENTION_EMITIDA'], 405);
+        }
+        // Fin ... Validar que se anule la retencion anterior
 
         if ($shop = $branch->shops()->create($request->except($except))) {
 
