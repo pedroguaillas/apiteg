@@ -89,10 +89,10 @@ class ProductController extends Controller
                 'code' => $product['code'],
                 'type_product' => $product['type_product'],
                 'name' => $product['name'],
-                'unity_id' => strlen($product['unity_id']) ? $product['unity_id'] : null,
-                'price1' => strlen($product['price1']) ? $product['price1'] : null,
-                'price2' => strlen($product['price2']) ? $product['price2'] : null,
-                'price3' => strlen($product['price3']) ? $product['price3'] : null,
+                // 'unity_id' => strlen($product['unity_id']) ? $product['unity_id'] : null,
+                'price1' => $product['price1'],
+                // 'price2' => strlen($product['price2']) ? $product['price2'] : null,
+                // 'price3' => strlen($product['price3']) ? $product['price3'] : null,
                 'iva' => $product['iva']
             ]);
         }
