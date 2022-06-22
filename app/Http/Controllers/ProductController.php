@@ -89,10 +89,10 @@ class ProductController extends Controller
                 'code' => $product['code'],
                 'type_product' => $product['type_product'],
                 'name' => $product['name'],
-                // 'unity_id' => strlen($product['unity_id']) ? $product['unity_id'] : null,
+                'unity_id' => strlen($product['unity_id']) ? $product['unity_id'] : null,
                 'price1' => $product['price1'],
-                // 'price2' => strlen($product['price2']) ? $product['price2'] : null,
-                // 'price3' => strlen($product['price3']) ? $product['price3'] : null,
+                'price2' => strlen($product['price2']) ? $product['price2'] : null,
+                'price3' => strlen($product['price3']) ? $product['price3'] : null,
                 'iva' => $product['iva']
             ]);
         }
@@ -104,6 +104,57 @@ class ProductController extends Controller
             ->select('products.*', 'categories.category', 'unities.unity');
 
         return ProductResources::collection($products->latest()->paginate());
+    }
+
+    public function getmasive(Request $request)
+    {
+        $auth = Auth::user();
+        $level = $auth->companyusers->first();
+        $company = Company::find($level->level_id);
+        $branch = $company->branches->first();
+
+        $prods = $request->get('prods');
+
+        $products = Product::where('branch_id', $branch->id)
+            ->whereIn('code', $this->toArrayCodes($prods))
+            ->get();
+
+        $order_items = [];
+
+        foreach ($products as $product) {
+            array_push($order_items, [
+                'product_id' => $product->id,
+                'discount' => 0,
+                'iva' => $product->iva,
+                'price' => $product->price1,
+                'quantity' => $this->findObjectById($product->code, $prods)
+            ]);
+        }
+
+        return response()->json([
+            'products' => $products,
+            'order_items' => $order_items
+        ]);
+    }
+
+    function toArrayCodes($objs)
+    {
+        $codes = array();
+        foreach ($objs as $obj) {
+            array_push($codes, $obj['code']);
+        }
+        return $codes;
+    }
+
+    function findObjectById($id, $array)
+    {
+        foreach ($array as $element) {
+            if ($id == $element['code']) {
+                return $element['quantity'];
+            }
+        }
+
+        return false;
     }
 
     public function show($id)
